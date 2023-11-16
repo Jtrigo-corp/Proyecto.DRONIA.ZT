@@ -26,7 +26,7 @@ ALLOWED_HOSTS = ['*']
 
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['https://3.18.104.70:8081']
+CSRF_TRUSTED_ORIGINS = ['https://3.18.104.70']
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
