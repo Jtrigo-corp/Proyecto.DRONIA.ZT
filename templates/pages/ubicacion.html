@@ -1,0 +1,160 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block breadcrumbs %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container daily-sales col-md-12">
+    <div class="row col-md-12">
+        <p class="b-title"><h3>Ubicaciones</h3></p>
+    </div>
+    <div class="row col-md-12 mb-2">
+        <div class="col-md-2">
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="javascript:" data-toggle="dropdown">Comuna</a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li>
+                    <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Checkme1" checked />
+                        <label class="form-check-label text-dark" for="Checkme1">Copiapo</label>
+                    </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Checkme2" />
+                        <label class="form-check-label text-dark" for="Checkme2">Caldera</label>
+                    </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Checkme3" />
+                        <label class="form-check-label text-dark" for="Checkme3">Tierra Amarilla</label>
+                    </div>
+                    </a>
+                </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="dropdown">
+                <a class="dropdown-toggle" href="javascript:" data-toggle="dropdown">Plagas</a>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li>
+                    <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Checkme3" />
+                        <label class="form-check-label text-dark" for="Checkme3">LEPIDIUM LATIFOLIUM</label>
+                    </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="Checkme4" />
+                        <label class="form-check-label text-dark" for="Checkme4">STYLOMMATOPHORA</label>
+                    </div>
+                    </a>
+                </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />
+            <label class="form-check-label" for="flexCheckDefault">Trampas</label>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="dropdown">
+            <a class="dropdown-toggle" href="javascript:" data-toggle="dropdown">Especies Vegetales</a>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <li>
+                <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="Checkme1" />
+                    <label class="form-check-label text-dark" for="Checkme1">Damascos</label>
+                    </div>
+                </a>
+                </li>
+                <li>
+                <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="Checkme2" />
+                    <label class="form-check-label text-dark" for="Checkme2">Duraznos</label>
+                    </div>
+                </a>
+                </li>
+                <li>
+                <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="Checkme3" />
+                    <label class="form-check-label text-dark" for="Checkme3">Higueras</label>
+                    </div>
+                </a>
+                </li>
+                <li>
+                <a class="dropdown-item" href="javascript:">
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="Checkme4" />
+                    <label class="form-check-label text-dark" for="Checkme4">Limoneros</label>
+                    </div>
+                </a>
+                </li>
+            </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+        <div class="row col-md-12">
+            <div class="col-md-8">
+                {{home|safe}}
+            </div>
+            <div class="row col-md-4">
+                <div class="col-md-12">
+                    <div class="card daily-sales">
+                        <div class="card-block">
+                        <h6 class="mb-4">Total Especies Frutales</h6>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-9">
+                            <h3 class="f-w-300 d-flex align-items-center m-b-0"><i
+                                class="feather icon-activity text-c-green f-30 m-r-10"></i>
+                                18</h3>
+                            </div>
+                        </div>
+                        <div class="progress m-t-30" style="height: 7px;">
+                            <div class="progress-bar progress-c-theme" role="progressbar" style="width: 100%;"
+                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-12">
+                    <div class="card daily-sales">
+                        <div class="card-block">
+                        <h6 class="mb-4">Cantidad de trampas</h6>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-9">
+                            <h3 class="f-w-300 d-flex align-items-center m-b-0"><i
+                                class="feather icon-flag text-c-green f-30 m-r-10"></i>
+                                47</h3>
+                            </div>
+                        </div>
+                        <div class="progress m-t-30" style="height: 7px;">
+                            <div class="progress-bar progress-c-theme" role="progressbar" style="width: 100%;"
+                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+{% endblock %}

@@ -1,12 +1,3 @@
-# [Datta Able Django](https://appseed.us/product/datta-able/django/)
-
-Open-source **[Django Dashboard](https://appseed.us/admin-dashboards/django/)** provided by `AppSeed` on top of a modern design. **[Datta Able](https://appseed.us/product/datta-able/django/)** Bootstrap Lite is the most stylized Bootstrap 4 Template, among all other Lite/Free admin templates in the market. It comes with high feature-rich pages and components with fully developer-centric code - design from `CodedThemes`.
-
-- 👉 [Datta Able Django](https://appseed.us/product/datta-able/django/) - `Product page` 
-- 👉 [Datta Able Django](https://django-datta-able.appseed-srv1.com/) - `LIVE demo` 
-
----
-
 ## Features
 
 > `Have questions?` Contact **[Support](https://appseed.us/support/)** (Email & Discord) provided by **AppSeed**

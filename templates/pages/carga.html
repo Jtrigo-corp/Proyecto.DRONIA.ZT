@@ -1,0 +1,40 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block breadcrumbs %}
+
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8 mb-4">
+        <label for="formFile" class="form-label">Seleccione el archivo a cargar</label>
+        <input class="form-control" type="file" id="formFile" />
+      </div>
+      <div class="col-sm-4 col-md-4 col-lg-4 col-xl-4 mt-4">
+        <button class='btn btn-sm btn-warning'><i class='fa-solid fa-paperclip'></i>Cargar</button>
+      </div>
+      <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        <div class="table-responsive">
+          <table id="datatable" class="table">
+            <caption>Lista de Vuelos</caption>
+            <thead>
+              <tr>
+                <th class="centered">N° Vuelo</th>
+                <th class="centered">Norte</th>
+                <th class="centered">Este</th>
+                <th class="centered">Especie Vegetal</th>
+                <th class="centered">Modelo de Trampa</th>
+                <th class="centered">Fecha de Subida del archivo</th>
+                <th class="centered">Fecha de modificacion del archivo</th>
+                <th class="centered">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody_vuelo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block breadcrumbs %}
+
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        <div class="table-responsive">
+          <table id="datatable" class="table">
+            <caption>Lista de Imagenes Cargadas | Predecir</caption>
+            <thead>
+                <tr>
+                    <th class="centered">N° Vuelo</th>
+                    <th class="centered">Norte</th>
+                    <th class="centered">Este</th>
+                    <th class="centered">Etiqueta Imagen</th>
+                    <th class="centered">Especie Vegetal</th>
+                    <th class="centered">Predicción Especie Vegetal</th>
+                    <th class="centered">Porcentaje de acierto</th>
+                    <th class="centered">Fecha de modificacion del archivo</th>
+                    <th class="centered">Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody_analisis"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+{% endblock %}
