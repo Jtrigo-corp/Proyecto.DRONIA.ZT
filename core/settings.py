@@ -21,8 +21,8 @@ if not SECRET_KEY:
 DEBUG = 'RENDER' not in os.environ
 
 # HOSTs List
-ALLOWED_HOSTS = ['*']
-#ALLOWED_HOSTS = ['3.18.104.70', 'localhost', '127.0.0.1']
+
+ALLOWED_HOSTS = ['3.18.104.70', 'localhost', '127.0.0.1']
 
 
 # Add here your deployment HOSTS
