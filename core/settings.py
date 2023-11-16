@@ -22,7 +22,7 @@ DEBUG = 'RENDER' not in os.environ
 
 # HOSTs List
 
-ALLOWED_HOSTS = ['3.18.104.70','3.18.104.70:8000', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['3.18.104.70', 'localhost', '127.0.0.1']
 
 
 # Add here your deployment HOSTS
@@ -101,7 +101,7 @@ DATABASES = {
         'NAME': 'droniadb',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': '3.18.104.70:8000',
+        'HOST': '3.18.104.70',
         'PORT': '8000',
     }
 }
