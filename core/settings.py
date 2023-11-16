@@ -22,11 +22,11 @@ DEBUG = 'RENDER' not in os.environ
 
 # HOSTs List
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['3.18.104.70']
 
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['https://3.18.104.70']
+CSRF_TRUSTED_ORIGINS = ['https://3.18.104.70:8000']
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
@@ -102,7 +102,7 @@ DATABASES = {
         'USER': 'admin',
         'PASSWORD': 'admin',
         'HOST': '3.18.104.70',
-        'PORT': '8081',
+        'PORT': '8000',
     }
 }
 
