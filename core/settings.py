@@ -22,11 +22,11 @@ DEBUG = 'RENDER' not in os.environ
 
 # HOSTs List
 
-ALLOWED_HOSTS = ['3.18.104.70']
+ALLOWED_HOSTS = ['*']
 
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['https://3.18.104.70:8000']
+CSRF_TRUSTED_ORIGINS = ['http://3.18.104.70:8000']
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
