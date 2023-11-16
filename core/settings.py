@@ -101,8 +101,8 @@ DATABASES = {
         'NAME': 'droniadb',
         'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '8000',
+        'HOST': '3.18.104.70',
+        'PORT': '3306',
     }
 }
 
