@@ -18,15 +18,14 @@ if not SECRET_KEY:
     SECRET_KEY = ''.join(random.choice( string.ascii_lowercase  ) for i in range( 32 ))
 
 # Render Deployment Code
-DEBUG = 'RENDER' not in os.environ
-
+DEBUG = True
 # HOSTs List
 
 ALLOWED_HOSTS = ['*']
 
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['http://3.18.104.70:8000']
+#CSRF_TRUSTED_ORIGINS = ['http://3.18.104.70:8000']
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
@@ -98,11 +97,8 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'droniadb',
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': '3.18.104.70',
-        'PORT': '8000',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        
     }
 }
 
