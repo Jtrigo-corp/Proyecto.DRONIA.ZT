@@ -21,11 +21,11 @@ if not SECRET_KEY:
 DEBUG = False
 # HOSTs List
 
-ALLOWED_HOSTS = ['3.18.104.70']
+ALLOWED_HOSTS = ['*']
 
 
 # Add here your deployment HOSTS
-#CSRF_TRUSTED_ORIGINS = ['http://3.18.104.70:8000']
+CSRF_TRUSTED_ORIGINS = ['http://3.18.104.70:8000']
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
@@ -96,7 +96,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'droniadb'),
         
     }
