@@ -5,7 +5,17 @@ from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-
+from django.core.files.storage import FileSystemStorage
+import boto3
+import json
+from django.core.files.storage import default_storage
+from django.shortcuts import render, redirect
+from admin_datta.forms import RegistrationForm, LoginForm, UserPasswordChangeForm, UserPasswordResetForm, UserSetPasswordForm
+from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetConfirmView, PasswordResetView
+from django.views.generic import CreateView
+from django.contrib.auth import logout
+import folium
+from rest_framework import views, response
 from api.serializers import *
 
 
@@ -84,4 +94,3 @@ class ProductView(APIView):
             'message': 'Record Deleted.',
             'success': True
         }, status=HTTPStatus.OK)
-

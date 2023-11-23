@@ -7,13 +7,16 @@
 
 {% block content %}
   <div class="container">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
     <div class="row">
       <div class="col-sm-8 col-md-8 col-lg-8 col-xl-8 mb-4">
         <label for="formFile" class="form-label">Seleccione el archivo a cargar</label>
-        <input class="form-control" type="file" id="formFile" />
+        <input class="form-control" type="file" id="formFile" name="photo" />
       </div>
       <div class="col-sm-4 col-md-4 col-lg-4 col-xl-4 mt-4">
-        <button class='btn btn-sm btn-warning'><i class='fa-solid fa-paperclip'></i>Cargar</button>
+        
+        <button type="submit" class='btn btn-sm btn-warning'><i class='fa-solid fa-paperclip'></i>Cargar</button>
       </div>
       <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
         <div class="table-responsive">
@@ -36,5 +39,6 @@
         </div>
       </div>
     </div>
+    </form>
   </div>
 {% endblock %}
