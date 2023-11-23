@@ -26,6 +26,7 @@ const listVuelos = async () => {
         const data = await response.json();
         console.log(data);
         let content ='';
+        const tableBody_vuelo = document.getElementById('tableBody_vuelo'); // Obtén la referencia al elemento
         data.vuelos.forEach((vuelo, carga) => {
             content += `
                 <tr>

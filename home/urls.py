@@ -1,5 +1,5 @@
 from django.urls import path
-from home.views import UploadView
+from map.views import UploadView
 from django.contrib.auth import views as auth_views
 
 from . import views

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
@@ -15,6 +15,7 @@ from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordRes
 from django.views.generic import CreateView
 from django.contrib.auth import logout
 import folium
+from map.models import Vuelo
 from rest_framework import views, response
 from api.serializers import *
 
@@ -64,53 +65,3 @@ def list_vuelos(request):
   data = {'vuelos': vuelos}
   return JsonResponse(data)
 
-class ValidateView(views.APIView):
-    def post(self, request, *args, **kwargs):
-        s3 = boto3.client('s3')
-        runtime = boto3.client('runtime.sagemaker')
-
-        file = request.FILES['photo']
-        file_name = default_storage.save(file.name, file)
-        s3.upload_file(file_name, 'dronia-bucket-imagenes', file.name)
-
-        with open(file_name, 'rb') as file_obj:
-            result = runtime.invoke_endpoint(
-                EndpointName='YourSageMakerEndpoint',
-                Body=file_obj.read(),
-                ContentType='application/x-image'
-            )
-
-        prediction = json.loads(result['Body'].read().decode())
-        return response.Response(f"El árbol frutal reconocido es {prediction['fruitTreeType']} con un porcentaje de aprobación de {prediction['approvalPercentage']}%")
-
-class UploadView(views.APIView):
-    def post(self, request):
-        uploaded_file = request.FILES['photo']
-        fs = FileSystemStorage()
-        name = fs.save(uploaded_file.name, uploaded_file)
-        file_name = fs.url(name)
-
-        s3 = boto3.client('s3')
-        s3.upload_file(file_name, 'dronia-bucket-imagenes', uploaded_file.name)
-
-        rekognition = boto3.client('rekognition')
-        response = rekognition.detect_labels(
-            Image={
-                'S3Object': {
-                    'Bucket': 'dronia-bucket-imagenes',
-                    'Name': uploaded_file.name
-                }
-            },
-            MaxLabels=10
-        )
-
-        runtime = boto3.client('runtime.sagemaker')
-        with open(file_name, 'rb') as file_obj:
-            result = runtime.invoke_endpoint(
-                EndpointName='YourSageMakerEndpoint',
-                Body=file_obj.read(),
-                ContentType='application/x-image'
-            )
-
-        prediction = json.loads(result['Body'].read().decode())
-        return render(request, 'carga.html', {'prediction': prediction})      
