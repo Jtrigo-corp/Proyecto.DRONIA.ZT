@@ -1,7 +1,9 @@
 from django.core.files.storage import FileSystemStorage
 import boto3
 import json
-from sagemaker import RealTimePredictor
+import logging
+logging.getLogger('sagemaker').setLevel(logging.WARNING)
+from sagemaker import Predictor
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
@@ -101,7 +103,7 @@ def predict(image_file_name):
     s3.upload_file(image_file_name, 'dronia-bucket-imagenes', image_file_name)
 
     # Crear un predictor de tiempo real
-    predictor = RealTimePredictor('your-endpoint-name')
+    predictor = Predictor('your-endpoint-name')
 
     # Hacer una predicción
     result = predictor.predict(image_file_name)

@@ -1,7 +1,6 @@
 import os, random, string, inspect
 from pathlib import Path
 from dotenv import load_dotenv
-
 import django_dyn_dt
 
 load_dotenv()  # take environment variables from .env.
