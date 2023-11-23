@@ -1,4 +1,4 @@
-app.post('/validate', async (request, response) => {
+ValidateView.post('/validate', async (request, response) => {
     const file = request.files.photo;
     const s3 = new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,

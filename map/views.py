@@ -15,6 +15,11 @@ def analisis(request):
     'segment': 'analisis'
   }
   return render(request, "pages/analisis.html", context)
+from rest_framework import views, response
+import boto3
+from django.core.files.storage import default_storage
+import json
+
 class ValidateView(views.APIView):
     def post(self, request, *args, **kwargs):
         s3 = boto3.client('s3')
@@ -31,4 +36,5 @@ class ValidateView(views.APIView):
                 ContentType='application/x-image'
             )
 
-        return response.Response(result['Body'].read().decode())
+        prediction = json.loads(result['Body'].read().decode())
+        return response.Response(f"El árbol frutal reconocido es {prediction['fruitTreeType']} con un porcentaje de aprobación de {prediction['approvalPercentage']}%")
