@@ -1,6 +1,7 @@
 from django.core.files.storage import FileSystemStorage
 import boto3
 import json
+from sagemaker import RealTimePredictor
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
@@ -14,10 +15,11 @@ from rest_framework import views, response
 
 # Create your views here.
 def analisis(request):
-  context = {
-    'segment': 'analisis'
-  }
-  return render(request, "pages/analisis.html", context)
+    context = {
+        'segment': 'analisis'
+    }
+    return render(request, "pages/analisis.html", context)
+
 
 class ValidateView(views.APIView):
     def post(self, request, *args, **kwargs):
@@ -37,6 +39,7 @@ class ValidateView(views.APIView):
 
         prediction = json.loads(result['Body'].read().decode())
         return response.Response(f"El árbol frutal reconocido es {prediction['fruitTreeType']} con un porcentaje de aprobación de {prediction['approvalPercentage']}%")
+
 
 class UploadView(views.APIView):
     def post(self, request):
@@ -68,8 +71,8 @@ class UploadView(views.APIView):
             )
 
         prediction = json.loads(result['Body'].read().decode())
-        return render(request, 'carga.html', {'prediction': prediction})      
-      
+        return render(request, 'carga.html', {'prediction': prediction})
+
 
 def upload(request):
     if request.method == 'POST':
@@ -82,8 +85,28 @@ def upload(request):
         s3 = boto3.client('s3')
 
         # Subir el archivo de imagen al bucket S3
-        s3.upload_file(image_file_name, 'dronia-bucket-imagenes', image_file.name)
+        s3.upload_file(image_file_name,
+                       'dronia-bucket-imagenes', image_file.name)
 
         return JsonResponse({'message': 'Imagen subida correctamente a S3.'})
 
     return JsonResponse({'message': 'Método no permitido.'}, status=405)
+
+
+def predict(image_file_name):
+    # Crear un cliente S3
+    s3 = boto3.client('s3')
+
+    # Subir el archivo de imagen al bucket S3
+    s3.upload_file(image_file_name, 'dronia-bucket-imagenes', image_file_name)
+
+    # Crear un predictor de tiempo real
+    predictor = RealTimePredictor('your-endpoint-name')
+
+    # Hacer una predicción
+    result = predictor.predict(image_file_name)
+
+    # Procesar el resultado
+    prediction = json.loads(result)
+
+    return prediction
