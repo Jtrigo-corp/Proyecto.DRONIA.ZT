@@ -6,7 +6,7 @@ from django.views.generic import CreateView
 from django.contrib.auth import logout
 import folium
 from rest_framework import views, response
-import boto3
+
 from django.core.files.storage import default_storage
 
 # Create your views here.
