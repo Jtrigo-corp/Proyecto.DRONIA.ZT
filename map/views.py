@@ -1,6 +1,9 @@
 from django.core.files.storage import FileSystemStorage
 import boto3
+from .forms import ImageUploadForm
+import boto3
 import json
+import export
 import logging
 logging.getLogger('sagemaker').setLevel(logging.WARNING)
 from sagemaker import Predictor
@@ -112,3 +115,45 @@ def predict(image_file_name):
     prediction = json.loads(result)
 
     return prediction
+
+
+
+def cargar_imagen(request):
+    if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Configuración de las credenciales de AWS
+            access_key = 'AKIAZ4YO5RDSQE6DK347'
+            secret_key = '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'
+            region = 'us-east-1'
+
+            # Configuración de Rekognition
+            rekognition = boto3.client('rekognition', aws_access_key_id=access_key,
+                                       aws_secret_access_key=secret_key, region_name=region)
+
+            # Enviar la imagen a Rekognition
+            imagen_bytes = request.FILES['image'].read()
+
+            respuesta_rekognition = rekognition.detect_labels(
+                Image={'Bytes': imagen_bytes},
+                MaxLabels=1,
+                MinConfidence=70
+            )
+
+            # Obtener el tag con el porcentaje de precisión más alto
+            if respuesta_rekognition['Labels']:
+                tag = respuesta_rekognition['Labels'][0]['Name']
+                precision = respuesta_rekognition['Labels'][0]['Confidence']
+            else:
+                tag = "N/A"
+                precision = "N/A"
+
+            # Agregar la entrada a la tabla
+            # Aquí puedes guardar los resultados en la base de datos si lo deseas
+
+            return render(request, 'resultados.html', {'tag': tag, 'precision': precision})
+
+    else:
+        form = ImageUploadForm()
+
+    return render(request, 'cargar_imagen.html', {'form': form})
