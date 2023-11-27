@@ -1,9 +1,10 @@
 from django.core.files.storage import FileSystemStorage
-import boto3
+
+from django.conf import settings
 from .forms import ImageUploadForm
-import boto3
-import json
-import export
+from .models import ImageData
+import requests
+from django.utils import timezone
 import logging
 logging.getLogger('sagemaker').setLevel(logging.WARNING)
 from sagemaker import Predictor

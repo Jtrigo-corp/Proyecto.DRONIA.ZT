@@ -28,3 +28,13 @@ class Ubicacion(models.Model):
     def __str__(self):
         return self.name
         
+class ImageData(models.Model):
+    image = models.ImageField(upload_to='uploaded_images/')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    address = models.CharField(max_length=255)
+    flight_number = models.IntegerField()
+    upload_date = models.DateTimeField(auto_now_add=True)
+    analysis_date = models.DateTimeField(null=True, blank=True)
+    detected_tree_type = models.CharField(max_length=50, null=True, blank=True)
+    confidence = models.FloatField(null=True, blank=True)

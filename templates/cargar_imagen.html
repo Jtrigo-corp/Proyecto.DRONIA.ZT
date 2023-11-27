@@ -9,8 +9,14 @@
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Cargar imagen</button>
+    {{ form.non_field_errors }}
+    {{ form.image.label_tag }} {{ form.image }}
+    {{ form.latitude.label_tag }} {{ form.latitude }}
+    {{ form.longitude.label_tag }} {{ form.longitude }}
+    {{ form.address.label_tag }} {{ form.address }}
+    {{ form.flight_number.label_tag }} {{ form.flight_number }}
+    
+    <button type="submit">Cargar Imagen</button>
 </form>
 
 {% endblock %}

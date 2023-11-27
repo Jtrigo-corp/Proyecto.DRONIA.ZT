@@ -7,7 +7,82 @@
 
 {% block content %}
 
-<p>Tag: {{ tag }}</p>
-<p>Precisión: {{ precision }}</p>
+{% for image in images %}
+    <div class="image-container">
+        <img src="{{ image.image.url }}" alt="Uploaded Image">
+        <button class="analyze-btn" data-image-id="{{ image.id }}">Analizar</button>
+    </div>
+{% endfor %}
+
+<!-- DataTable para imágenes cargadas -->
+<table id="uploaded-images" class="display">
+    <thead>
+        <tr>
+            <th>Imagen</th>
+            <th>Coordenadas</th>
+            <th>Dirección</th>
+            <th>Nro. de Vuelo</th>
+            <th>Fecha de Carga</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for image in images %}
+            <tr>
+                <td><img src="{{ image.image.url }}" alt="Uploaded Image"></td>
+                <td>{{ image.latitude }}, {{ image.longitude }}</td>
+                <td>{{ image.address }}</td>
+                <td>{{ image.flight_number }}</td>
+                <td>{{ image.upload_date }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- DataTable para resultados de análisis -->
+<table id="analysis-results" class="display">
+    <thead>
+        <tr>
+            <th>Imagen</th>
+            <th>Tipo de Árbol Detectado</th>
+            <th>Confianza</th>
+            <th>Fecha de Análisis</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<!-- Script para inicializar DataTables y manejar eventos -->
+<script>
+    $(document).ready(function() {
+        // Inicializar DataTable para imágenes cargadas
+        var uploadedTable = $('#uploaded-images').DataTable();
+
+        // Inicializar DataTable para resultados de análisis
+        var analysisTable = $('#analysis-results').DataTable();
+
+        // Manejar clic en el botón "Analizar"
+        $('.analyze-btn').on('click', function() {
+            var imageId = $(this).data('image-id');
+            // Realizar solicitud AJAX para obtener resultados de análisis
+            $.ajax({
+                url: '/analyze/',  // Ajusta la URL según tu configuración
+                type: 'POST',
+                data: {'image_id': imageId},
+                success: function(data) {
+                    // Agregar resultados a DataTable de resultados de análisis
+                    analysisTable.row.add([
+                        '<img src="' + data.image_url + '" alt="Analyzed Image">',
+                        data.detected_tree_type,
+                        data.confidence,
+                        data.analysis_date
+                    ]).draw();
+                },
+                error: function(error) {
+                    console.error('Error en la solicitud de análisis:', error);
+                }
+            });
+        });
+    });
+</script>
 
 {% endblock %}
