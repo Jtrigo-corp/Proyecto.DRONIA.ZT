@@ -35,9 +35,11 @@ class Muestreo(models.Model):
     longitud = models.FloatField()
     direccion = models.CharField(max_length=255)
     fecha_muestreo = models.DateTimeField()
-    
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = 'muestreo'
+    
+    def __str__(self):
+        return f'{self.nro_vuelo} - {self.fecha_muestreo}'
