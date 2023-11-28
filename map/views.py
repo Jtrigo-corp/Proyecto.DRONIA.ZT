@@ -1,13 +1,6 @@
 from django.core.files.storage import FileSystemStorage
 
 from django.conf import settings
-from .forms import ImageUploadForm
-from .models import ImageData
-import requests
-from django.utils import timezone
-import logging
-logging.getLogger('sagemaker').setLevel(logging.WARNING)
-from sagemaker import Predictor
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect

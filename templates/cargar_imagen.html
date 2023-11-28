@@ -9,14 +9,30 @@
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.non_field_errors }}
-    {{ form.image.label_tag }} {{ form.image }}
-    {{ form.latitude.label_tag }} {{ form.latitude }}
-    {{ form.longitude.label_tag }} {{ form.longitude }}
-    {{ form.address.label_tag }} {{ form.address }}
-    {{ form.flight_number.label_tag }} {{ form.flight_number }}
-    
+    {{ form.as_p }}
     <button type="submit">Cargar Imagen</button>
-</form>
+  </form>
+
+<!-- Agrega un contenedor para la DataTable -->
+<div>
+    <table id="uploaded-images" class="display">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Coordenadas</th>
+                <th>Dirección</th>
+                <th>Nro. de Vuelo</th>
+                <th>Fecha de Carga</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los datos se llenarán aquí después de cargar la imagen -->
+        </tbody>
+    </table>
+</div>
+
+
+
+
 
 {% endblock %}

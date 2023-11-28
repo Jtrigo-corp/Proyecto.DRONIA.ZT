@@ -12,7 +12,7 @@ AZURE_STORAGE_CONNECTION_STRING = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
 AZURE_ACCOUNT_NAME = 'jorge.trigo03@inacapmail.cl'
-AZURE_CONTAINER = 'droniastorage1'
+AZURE_CONTAINER = 'https://droniastorage1.blob.core.windows.net/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
+    "storages", # Azure Storage
     "home",
     "map",
 

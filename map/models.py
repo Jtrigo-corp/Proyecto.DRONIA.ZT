@@ -28,13 +28,16 @@ class Ubicacion(models.Model):
     def __str__(self):
         return self.name
         
-class ImageData(models.Model):
-    image = models.ImageField(upload_to='uploaded_images/')
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    address = models.CharField(max_length=255)
-    flight_number = models.IntegerField()
-    upload_date = models.DateTimeField(auto_now_add=True)
-    analysis_date = models.DateTimeField(null=True, blank=True)
-    detected_tree_type = models.CharField(max_length=50, null=True, blank=True)
-    confidence = models.FloatField(null=True, blank=True)
+# models.py
+class Muestreo(models.Model):
+    nro_vuelo = models.CharField(max_length=50)
+    latitud = models.FloatField()
+    longitud = models.FloatField()
+    direccion = models.CharField(max_length=255)
+    fecha_muestreo = models.DateTimeField()
+    
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'muestreo'
