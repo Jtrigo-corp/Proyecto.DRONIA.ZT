@@ -7,19 +7,33 @@
 
 {% block content %}
 
-<h1>Resultados de la predicción</h1>
-    <p>Imagen: {{ results.blob_name }}</p>
+    <h1>Resultados de la predicción</h1>
+    
     {% if results.error %}
         <p>Error: {{ results.error }}</p>
-    {% else %}
-        <p>Etiqueta con mayor confianza: {{ results.top_tag }}</p>
-        <p>Confianza: {{ results.confidence }}%</p>
-        <!-- Mostrar otros detalles de las predicciones si es necesario -->
-        <ul>
-            {% for prediction in results.all_predictions %}
-                <li>{{ prediction.tag_name }}: {{ prediction.probability * 100 }}%</li>
-            {% endfor %}
-        </ul>
+        {% else %}
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="table-responsive">
+                <table id="datatables" class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo de árbol</th>
+                        <th>Porcentaje de aceptación</th>
+                        <th>Fecha de análisis</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for result in results %}
+                        <tr>
+                            <td>{{ result.id }}</td>
+                            <td>{{ result.tag_name }}</td>
+                            <td>{{ result.probability|floatformat:4 }}%</td>
+                            <td>{{ result.fecha }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
     {% endif %}
 
 {% endblock %}

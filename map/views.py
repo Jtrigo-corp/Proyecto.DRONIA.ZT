@@ -1,5 +1,4 @@
 from django.core.files.storage import FileSystemStorage
-
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.files.storage import default_storage

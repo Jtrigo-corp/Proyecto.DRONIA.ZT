@@ -6,33 +6,85 @@
 {% endblock %}
 
 {% block content %}
-
-<form method="post" enctype="multipart/form-data">
+  <form method="post" action="{% url 'cargar_imagen' %}">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Cargar Imagen</button>
+    <!-- Agrega aquí los campos necesarios para el vuelo -->
+    <label for="sector_vuelo">Sector de Vuelo:</label>
+    <input type="text" name="sector_vuelo" required />
+    <label for="fecha_vuelo">Fecha de Vuelo:</label>
+    <input type="date" name="fecha_vuelo" required />
+    <button type="submit">Guardar Vuelo</button>
+  </form>
+  <hr class="my-4 bg-primary" style="height: 3px;" />
+
+  <!-- Formulario para cargar imágenes asociadas a un vuelo -->
+  <form method="post" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="vuelos">Seleccionar Vuelo:</label>
+    {{ formulario.vuelo }}
+    <label for="image">Seleccionar Imágenes:</label>
+    <input type="file" name="image" multiple required />
+    <button type="submit">Guardar Imágenes</button>
   </form>
 
-<!-- Agrega un contenedor para la DataTable -->
-<div>
-    <table id="uploaded-images" class="display">
+  <!-- Muestra la datatable con los datos almacenados -->
+  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+    <div class="table-responsive">
+      <table id="datatables" class="table">
+        <!-- Encabezados de la tabla -->
         <thead>
-            <tr>
-                <th>Imagen</th>
-                <th>Coordenadas</th>
-                <th>Dirección</th>
-                <th>Nro. de Vuelo</th>
-                <th>Fecha de Carga</th>
-            </tr>
+          <tr>
+            <th>ID Vuelo</th>
+            <th>Sector Vuelo</th>
+            <th>Fecha Vuelo</th>
+            <th>Fecha subida</th>
+            <th>Fecha actualización</th>
+            <th>Opciones</th>
+          </tr>
         </thead>
         <tbody>
-            <!-- Los datos se llenarán aquí después de cargar la imagen -->
+          {% for informacion in informaciones %}
+            <tr>
+              <td>{{ informacion.id_vuelo }}</td>
+              <td>{{ informacion.sector_vuelo }}</td>
+              <td>{{ informacion.fecha_vuelo }}</td>
+              <td>{{ informacion.create_at }}</td>
+              <td>{{ informacion.update_at }}</td>
+              <td>
+                <form action="{% url 'edit_vuelo' informacion.id_vuelo %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-warning">Ver Imagenes Cargadas</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
         </tbody>
-    </table>
-</div>
-
-
-
-
-
+      </table>
+    </div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      $('#datatables').DataTable()
+    })
+  </script>
 {% endblock %}
+<div class="modal fade" id="verImagenesModal" tabindex="-1" aria-labelledby="verImagenesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="verImagenesModalLabel">Imágenes Cargadas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Contenido del modal (puedes agregar imágenes u otra información aquí) -->
+        <!-- Por ejemplo, puedes mostrar las imágenes asociadas al vuelo -->
+        {% for imagen in informacion.imagenes.all %}
+          <img src="{{ imagen.url }}" alt="Imagen" class="img-fluid" />
+        {% endfor %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>

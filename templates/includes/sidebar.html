@@ -37,12 +37,12 @@
           </ul>
         </li>
         {% endif %}-->
-        <li class="nav-item {% if 'carga' in segment %}active{% endif %}">
-          <a href="{% url 'carga' %}" class="nav-link "><span class="pcoded-micon"><i
+        <li class="nav-item {% if 'cargar_imagen' in segment %}active{% endif %}">
+          <a href="{% url 'cargar_imagen' %}" class="nav-link "><span class="pcoded-micon"><i
                 class="feather icon-server text-c-green"></i></span><span class="pcoded-mtext">Cargar Datos Dron</span></a>
         </li>
-        <li class="nav-item {% if 'analisis' in segment %}active{% endif %}">
-          <a href="{% url 'analisis' %}" class="nav-link "><span class="pcoded-micon"><i
+        <li class="nav-item {% if 'resultados' in segment %}active{% endif %}">
+          <a href="{% url 'resultados' %}" class="nav-link "><span class="pcoded-micon"><i
                 class="feather icon-clipboard text-c-green"></i></span><span class="pcoded-mtext">Analizar Datos Dron</span></a>
         </li>
         <li class="nav-item {% if 'ubicacion' in segment %}active{% endif %}">

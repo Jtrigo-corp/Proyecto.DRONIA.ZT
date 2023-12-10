@@ -1,45 +1,46 @@
-from typing import Any
+
+from time import timezone
 from django.db import models
 
-# Create your models here.
-class Vuelo(models.Model):
-    id = models.AutoField(primary_key=True)
-    norte = models.FloatField()
-    este = models.FloatField()
-    create_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
-    
+class Operador(models.Model):
+    id_operador = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50)
+    apellido = models.CharField(max_length=50)
+    mail = models.EmailField()
     class Meta:
-        db_table = 'vuelo'
-
-class Ubicacion(models.Model):
-    id_vuelo = models.ForeignKey(Vuelo, on_delete=models.CASCADE)
-    id_ubicacion = models.AutoField(primary_key=True, verbose_name='ID Ubicacion')
-    latitud = models.FloatField(verbose_name='Latitud')
-    longitud = models.FloatField(verbose_name='Longitud')
-    poblacion_ubicada = models.CharField(max_length=250, verbose_name='Poblacion Ubicada')
-    
-    class Meta:
-        db_table = 'ubicacion'
-        verbose_name = 'Ubicacion'
-        verbose_name_plural = 'Ubicaciones'
-        ordering = ['id_ubicacion']
+        db_table = 'map_operador'
         
     def __str__(self):
-        return self.name
-        
-# models.py
-class Muestreo(models.Model):
-    nro_vuelo = models.CharField(max_length=50)
+        return f'Operador {self.id_operador} - {self.nombre} {self.apellido}'
+
+class Vuelo(models.Model):
+    id_vuelo = models.AutoField(primary_key=True)
+    sector_vuelo = models.CharField(max_length=255)
+    fecha_vuelo = models.DateField()
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = 'map_vuelo'  # Especifica el nombre de la tabla en la base de datos
+
+    def __str__(self):
+        return f'Vuelo {self.id_vuelo}'
+
+class Imagenes(models.Model):
+    id_imagen = models.AutoField(primary_key=True)
+    vuelo = models.ForeignKey('Vuelo', on_delete=models.CASCADE)
+    nombre_imagen = models.CharField(max_length=255)
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        db_table = 'map_imagenes'  # Especifica el nombre de la tabla en la base de datos
+    
+class Ubicaciones(models.Model):
+    id_ubicaciones = models.AutoField(primary_key=True)
     latitud = models.FloatField()
     longitud = models.FloatField()
-    direccion = models.CharField(max_length=255)
-    fecha_muestreo = models.DateTimeField()
-    create_at = models.DateTimeField(auto_now_add=True)
-    update_at = models.DateTimeField(auto_now=True)
-    
+    numero_asignacion = models.IntegerField()
     class Meta:
-        db_table = 'muestreo'
-    
+        db_table = 'map_ubicaciones'
+
     def __str__(self):
-        return f'{self.nro_vuelo} - {self.fecha_muestreo}'
+        return f'Ubicacion {self.id_ubicaciones}'
