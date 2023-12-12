@@ -19,6 +19,9 @@ class Vuelo(models.Model):
     fecha_vuelo = models.DateField()
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now_add=True)
+    operador = models.ForeignKey(Operador, on_delete=models.CASCADE,blank=True, null=True)
+    cantidad_imagenes = models.IntegerField(default=0)
+    cantidad_predicciones = models.IntegerField(default=0)
     class Meta:
         db_table = 'map_vuelo'  # Especifica el nombre de la tabla en la base de datos
 
@@ -28,7 +31,10 @@ class Vuelo(models.Model):
 class Imagenes(models.Model):
     id_imagen = models.AutoField(primary_key=True)
     vuelo = models.ForeignKey('Vuelo', on_delete=models.CASCADE)
-    nombre_imagen = models.CharField(max_length=255)
+    nombre_imagen = models.CharField(max_length=255, blank=True, null=True)
+    resultado = models.TextField(null=True, blank=True)
+    image_file = models.ImageField(upload_to='imagenes/', null=True, blank=True)
+    analizada = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now_add=True)
     class Meta:

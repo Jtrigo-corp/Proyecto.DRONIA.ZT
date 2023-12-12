@@ -10,8 +10,11 @@ urlpatterns = [
     path('list_vuelos/', views.list_vuelos, name='list_vuelos'),
     path('carga/', views.carga, name='carga'),
     path('cargar_imagen/', views.cargar_imagen, name='cargar_imagen'),
-    path('edit_vuelo/<int:id>/', views.edit_vuelo, name='edit_vuelo'),
-    path('delete_vuelo/<int:id_vuelo>/', views.delete_vuelo, name='delete_vuelo'),
     path('ingresar_vuelo/', views.ingresar_vuelo, name='ingresar_vuelo'),
+    path('detalle_vuelo/<int:id_vuelo>/',
+         views.detalle_vuelo, name='detalle_vuelo'),
+    path('predecir_imagenes/<int:id_vuelo>/',
+         views.predecir_imagenes, name='predecir_imagenes'),
+
 
 ]

@@ -1,4 +1,8 @@
+from gettext import translation
+import imghdr
+from io import BytesIO
 from azure.storage.blob import BlobServiceClient, ContentSettings
+import requests
 from map.models import Imagenes, Vuelo
 from map.forms import DatosForm, IngresarVueloForm
 from django.shortcuts import get_object_or_404, render
@@ -32,20 +36,33 @@ from api.serializers import *
 import os
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
-
+from azure.storage.blob import BlobServiceClient, ContentSettings
+from django.shortcuts import render, redirect
 from django.contrib import messages
+from map.forms import IngresarVueloForm, DatosForm
+from map.models import Vuelo, Imagenes
+from django.contrib import messages
+import mimetypes
+import os
+from azure.storage.blob import BlobServiceClient
+from django.http import JsonResponse
+# Asegúrate de tener esta línea al inicio de tu archivo
+from django.db import transaction
+
 
 def ingresar_vuelo(request):
     if request.method == 'POST':
         form = IngresarVueloForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('cargar_imagen')  # Puedes redirigir a donde desees después de ingresar el vuelo
+            # Puedes redirigir a donde desees después de ingresar el vuelo
+            return redirect('cargar_imagen')
     else:
         form = IngresarVueloForm()
 
     vuelos = Vuelo.objects.all()
     return render(request, 'cargar_imagen.html', {'form': form, 'vuelos': vuelos})
+
 
 def index(request):
 
@@ -93,33 +110,19 @@ def list_vuelos(request):
     data = {'vuelos': vuelos}
     return JsonResponse(data)
 
-def list_muestreo(request):
-    muestreo = list(Muestreo.objects.values())
-    data = {'muestreo': muestreo}
-    return JsonResponse(data)
 
-def delete_muestreo(request, id):
-    muestreo = get_object_or_404(Muestreo, id=id)
+def contar_blobs(contenedor):
+    connection_string = "DefaultEndpointsProtocol=https;AccountName=droniastorage1;AccountKey=+5rxQ1nhKb/I+d7JnFZ91nRRebO7YRnwHLu2pJ5KOIyMXRUsI91Q8iQfJY/VOkhRuZziAu/vhnVr+AStdjSyHw==;EndpointSuffix=core.windows.net"
+    blob_service_client = BlobServiceClient.from_connection_string(
+        connection_string)
+    container_client = blob_service_client.get_container_client(contenedor)
+    blobs_list = container_client.list_blobs()
+    return len(list(blobs_list))
 
-    if request.method == 'POST':
-        muestreo.delete()
-        return redirect('cargar_imagen')
 
-    return render(request, 'cargar_imagen.html', {'muestreo': muestreo})
-# ... Configurar conexión a Azure Blob Storage ...
+# Uso de la función
+cantidad_predicciones = contar_blobs("imagenes-analizadas")
 
-def edit_muestreo(request, id):
-    muestreo = get_object_or_404(Muestreo, id=id)
-
-    if request.method == 'POST':
-        form = DatosForm(request.POST, instance=muestreo)
-        if form.is_valid():
-            form.save()
-            return redirect('cargar_imagen')
-    else:
-        form = DatosForm(instance=muestreo)
-
-    return render(request, 'edit_muestreo.html', {'form': form, 'muestreo': muestreo}) 
 
 def cargar_imagen(request):
     if request.method == 'POST':
@@ -127,31 +130,63 @@ def cargar_imagen(request):
         if form_vuelo.is_valid():
             form_vuelo.save()
 
-        formulario = DatosForm(vuelos=Vuelo.objects.all(), data=request.POST, files=request.FILES)
+        formulario = DatosForm(vuelos=Vuelo.objects.all(),
+                               data=request.POST, files=request.FILES)
+        print(request.FILES)  # Imprime los archivos subidos
         if formulario.is_valid():
-            formulario.save()
+            with transaction.atomic():
+                # Guardar el formulario en la base de datos
+                formulario.save()
 
-            # Obtener el vuelo asociado al formulario
-            vuelo = formulario.cleaned_data['vuelo']
+                # Obtener el vuelo asociado al formulario
+                vuelo = formulario.cleaned_data['vuelo']
 
-            # Resto del código para guardar imágenes
-            images = request.FILES.getlist('image')
-            blob_service_client = BlobServiceClient.from_connection_string("Tu conexión a Azure Storage")
+                load_dotenv('.env')
+                # Resto del código para guardar imágenes en Azure Blob Storage
+                try:
+                    # Verificar que el código se está ejecutando
+                    print("Iniciando la subida de imágenes...")
+                    images = request.FILES.getlist('image')
+                    # Verificar que estás obteniendo las imágenes correctamente
+                    print(f"Imágenes: {images}")
 
-            for image in images:
-                # Verificar si la imagen ya existe en Azure Blob Storage
-                blob_client = blob_service_client.get_blob_client(container="imagenes-sin-procesar", blob=image.name)
+                    os.environ['AZURE_STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=https;AccountName=droniastorage1;AccountKey=ajoSCjr7SO3Ix2jUmAXjOpOkM5wo6fwLicXRk9qYKdYryUjOnmwobl7Fmyus0titUygcsqVCWPHb+AStWXW6Bw==;EndpointSuffix=core.windows.net'
 
-                if blob_client.exists():
-                    messages.warning(request, 'La imagen ya existe en Azure Blob Storage.')
-                else:
-                    # Subir la imagen a Azure Blob Storage
-                    blob_client.upload_blob(image, content_settings=ContentSettings(content_type='image/jpeg'))
+                    blob_service_client = BlobServiceClient.from_connection_string(
+                        os.getenv('AZURE_STORAGE_CONNECTION_STRING'))
 
-                    # Guardar la información de la imagen en la base de datos
-                    Imagenes.objects.create(vuelo=vuelo, nombre_imagen=image.name)
+                    for image in images:
+                        blob_client = blob_service_client.get_blob_client(
+                            container="imagenes-sin-procesar", blob=image.name)
+                        # Verificar que estás creando el BlobClient correctamente
+                        print(f"BlobClient: {blob_client}")
 
-            return redirect('cargar_imagen')
+                        if blob_client.exists():
+                            messages.warning(
+                                request, 'La imagen ya existe en Azure Blob Storage.')
+                        else:
+                            content_type, _ = mimetypes.guess_type(image.name)
+                            if content_type is None:
+                                content_type = 'application/octet-stream'
+
+                            # Verificar que el código se está ejecutando
+                            print("Subiendo imagen...")
+                            blob_client.upload_blob(
+                                image, content_settings=ContentSettings(content_type=content_type))
+                            Imagenes.objects.create(
+                                vuelo=vuelo, nombre_imagen=image.name, analizada=True)
+                except Exception as e:
+                    print(f"Error al cargar imágenes: {e}")
+                    messages.error(
+                        request, 'Ocurrió un error al cargar las imágenes.')
+                    import traceback
+                    print(f"Traceback: {traceback.format_exc()}")
+
+                return redirect('cargar_imagen')
+        else:
+            print(formulario.errors)  # Imprime los errores del formulario
+            # Verificar si el formulario es válido
+            print("El formulario no es válido.")
     else:
         form_vuelo = IngresarVueloForm()
         formulario = DatosForm(vuelos=Vuelo.objects.all())
@@ -159,64 +194,101 @@ def cargar_imagen(request):
     informaciones = Vuelo.objects.all()
     return render(request, 'cargar_imagen.html', {'form_vuelo': form_vuelo, 'formulario': formulario, 'informaciones': informaciones})
 
-load_dotenv()
 
 def resultados(request):
-    
-    key = os.getenv('KEY')
-    endpoint = os.getenv('ENDPOINT')
-    project_id = os.getenv('PROJECT_ID')
-    published_name = os.getenv('PUBLISHED_ITERATION_NAME')
-    credentials = ApiKeyCredentials(in_headers={'Prediction-key': key})
-    client = CustomVisionPredictionClient(endpoint, credentials)
+    # Obtener todos los vuelos y la información relacionada
+    vuelos = Vuelo.objects.all()
+    vuelos_info = []
+    for vuelo in vuelos:
+        imagenes = Imagenes.objects.filter(vuelo=vuelo, analizada=True)
+        vuelos_info.append({
+            'vuelo': vuelo.id_vuelo,
+            'cantidad_imagenes': imagenes.count(),
+            'fecha': vuelo.fecha_vuelo,  # Solo la fecha, sin la hora
+            'resultados': [imagen.resultado for imagen in imagenes],  # Los resultados de la predicción
+        })
 
-    # cliente de Azure Blob Storage
-    blob_service_client = BlobServiceClient.from_connection_string(os.getenv('AZURE_STORAGE_CONNECTION_STRING'))
-    container_client = blob_service_client.get_container_client(os.getenv('CONTAINER_NAME1'))
+    # Renderizar la plantilla con la información de los vuelos
+    return render(request, 'resultados.html', {'vuelos_info': vuelos_info})
 
-    # Obtener las últimas 2 imágenes del contenedor
-    blobs_list = container_client.list_blobs()
-    latest_blobs = sorted(blobs_list, key=lambda blob: blob.last_modified, reverse=True)[:2]
 
-    container_client_analizadas = BlobServiceClient.from_connection_string(os.getenv('AZURE_STORAGE_CONNECTION_STRING')).get_container_client('imagenes-analizadas')
+def detalle_vuelo(request, id_vuelo):
+    vuelo = Vuelo.objects.get(id=id_vuelo)
+    data = {
+        'fecha_carga': vuelo.fecha_carga,
+        'operador': vuelo.operador.username,
+        'cantidad_imagenes': vuelo.cantidad_imagenes,
+        'cantidad_predicciones': vuelo.cantidad_predicciones,
+    }
+    return JsonResponse(data)
 
-    # Clasificar cada imagen, guardar los resultados y la imagen analizada
+
+def predecir_imagenes(request, id_vuelo):
+    # Obtener las imágenes del contenedor
+    images = Imagenes.objects.filter(vuelo_id=id_vuelo)
+
+    # Predecir las imágenes usando Custom Vision
+    # Aquí estoy asumiendo que tienes una función `predict_images` que toma las imágenes y devuelve los resultados de la predicción
+    results = predict_images(images)
+
+    # Devolver los resultados como una respuesta JSON
+    return JsonResponse({'results': results})
+
+
+def predict_images(images):
+    # Configuración para Custom Vision
+    ENDPOINT = "https://eastus.api.cognitive.microsoft.com/"
+    prediction_key = "d34506be224747ad9e403b138e1977d1"
+    project_id = "6f464655-adf2-46f4-a04a-979ee9c7ed63"
+    publish_iteration_name = "Modelo-Train"
+
+    # Crear un cliente de predicción
+    credentials = ApiKeyCredentials(
+        in_headers={"Prediction-key": prediction_key})
+    predictor = CustomVisionPredictionClient(ENDPOINT, credentials)
+
+    # Crear un cliente de Azure Blob Storage
+    os.environ['AZURE_STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=https;AccountName=droniastorage1;AccountKey=ajoSCjr7SO3Ix2jUmAXjOpOkM5wo6fwLicXRk9qYKdYryUjOnmwobl7Fmyus0titUygcsqVCWPHb+AStWXW6Bw==;EndpointSuffix=core.windows.net'
+    blob_service_client = BlobServiceClient.from_connection_string(
+        os.getenv('AZURE_STORAGE_CONNECTION_STRING'))
+
+    # Predecir cada imagen
     results = []
-    for i, blob in enumerate(latest_blobs):
-        blob_client = blob_service_client.get_blob_client(os.getenv('CONTAINER_NAME1'), blob.name)
-        blob_data = blob_client.download_blob().readall()
-        result = client.classify_image(project_id, published_name, blob_data)
-        for prediction in result.predictions:
-            results.append({
-                'id': i + 1,
-                'fecha': blob.last_modified,
-                'tag_name': prediction.tag_name,
-                'probability': prediction.probability
-            })
-            print(f'{prediction.tag_name}: {(prediction.probability):.2%}')
-        # Guardar la imagen analizada en el contenedor 'imagenes-analizadas'
-        
-        container_client_analizadas.upload_blob(f'imagen_{result.id}.jpg', blob_data, overwrite=True)
+    for image in images:
+        blob_client = blob_service_client.get_blob_client(
+            container="imagenes-sin-procesar", blob=str(image.nombre_imagen))
 
-    # Renderizar la plantilla con los resultados
-    return render(request, 'resultados.html', {'results': results})
+        if blob_client.exists():
+            stream = blob_client.download_blob().readall()
+            result = predictor.classify_image(
+                project_id, publish_iteration_name, stream)
+            # Obtén el tag con el mayor porcentaje
+            top_prediction = max(result.predictions,
+                                 key=lambda prediction: prediction.probability)
+            # Convierte el porcentaje a un formato de porcentaje
+            percentage = round(top_prediction.probability * 100, 1)
+            # Almacena el nombre del tag y el porcentaje
+            results.append(
+                (image.nombre_imagen, top_prediction.tag_name, f"{percentage}%"))
+        else:
+            print(
+                f"La imagen con nombre {image.nombre_imagen} no existe en el blob storage.")
 
-def edit_vuelo(request, id):
-    vuelo = get_object_or_404(Vuelo, id=id)
-    if request.method == 'POST':
-        form = DatosForm(request.POST, instance=vuelo)
-        if form.is_valid():
-            form.save()
-            return redirect('cargar_imagen')
-    else:
-        form = DatosForm(instance=vuelo)
-    return render(request, 'edit_vuelo.html', {'form': form})
+    return results
 
-def delete_vuelo(request, id_vuelo):
-    vuelo = get_object_or_404(Vuelo, id_vuelo=id_vuelo)
 
-    if request.method == 'POST':
-        vuelo.delete()
-        return HttpResponseRedirect('/cargar_imagen/')  # Cambiar a la URL correcta
+def validar_imagenes(request, id_vuelo):
+    # Obtener las imágenes del vuelo
+    images = Imagenes.objects.filter(vuelo_id=id_vuelo, analizada=False)
 
-    return render(request, 'cargar_imagen.html', {'vuelos': vuelo})
+    # Predecir las imágenes
+    results = predict_images(images)
+
+    # Guardar los resultados en la base de datos y marcar las imágenes como analizadas
+    for image, result in zip(images, results):
+        image.resultado = str(result)
+        image.analizada = True
+        image.save()
+
+    # Devolver una respuesta, como una redirección o una respuesta JSON
+    return redirect('resultados')

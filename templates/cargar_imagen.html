@@ -6,27 +6,52 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post" action="{% url 'cargar_imagen' %}">
-    {% csrf_token %}
-    <!-- Agrega aquí los campos necesarios para el vuelo -->
-    <label for="sector_vuelo">Sector de Vuelo:</label>
-    <input type="text" name="sector_vuelo" required />
-    <label for="fecha_vuelo">Fecha de Vuelo:</label>
-    <input type="date" name="fecha_vuelo" required />
-    <button type="submit">Guardar Vuelo</button>
-  </form>
+  <h3>Formulario De Registro de Vuelos y Subida de Imagenes</h3>
+  <hr class="my-4 bg-light" style="height: 3px;" />
+  <div class="container-flex">
+    <div class="col-md-12 col-lg-12 col-xl-12">
+      <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}">
+        {% csrf_token %}
+        <!-- Agrega aquí los campos necesarios para el vuelo -->
+        <div class="col-3">
+          <label for="sector_vuelo">Sector de Vuelo:</label>
+          <input type="text" name="sector_vuelo" id="sector_vuelo" class="form-control" required />
+        </div>
+        <div class="col-3">
+          <label for="fecha_vuelo">Fecha de Vuelo:</label>
+          <input type="date" name="fecha_vuelo" id="fecha_vuelo" class="form-control" required />
+        </div>
+        <div class="col-3">
+          <label for="operador">ID del operador</label>
+          <input type="text" class="form-control" id="operador" name="operador" />
+        </div>
+        <div class="col-3 pt-4">
+          <button type="submit" class="btn btn-primary">Guardar Vuelo</button>
+        </div>
+      </form>
+    </div>
+    <br />
+    <div class="col-md-12 col-lg-12 col-xl-12">
+      <!-- Formulario para cargar imágenes asociadas a un vuelo -->
+      <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="col-3">
+          <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
+        </div>
+        <div class="col-3">
+          <label for="image" class="form-control-plaintext">Seleccionar Imágenes:</label>
+        </div>
+        <div class="col-3">
+          <input type="file" class="form-control" id="image" name="image" multiple required />
+        </div>
+        <div class="col-3">
+          <button type="submit" class="btn btn-primary">Guardar Imágenes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <hr class="my-4 bg-primary" style="height: 3px;" />
-
-  <!-- Formulario para cargar imágenes asociadas a un vuelo -->
-  <form method="post" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="vuelos">Seleccionar Vuelo:</label>
-    {{ formulario.vuelo }}
-    <label for="image">Seleccionar Imágenes:</label>
-    <input type="file" name="image" multiple required />
-    <button type="submit">Guardar Imágenes</button>
-  </form>
-
   <!-- Muestra la datatable con los datos almacenados -->
   <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
     <div class="table-responsive">
@@ -34,11 +59,9 @@
         <!-- Encabezados de la tabla -->
         <thead>
           <tr>
-            <th>ID Vuelo</th>
+            <th>N° del Vuelo</th>
             <th>Sector Vuelo</th>
             <th>Fecha Vuelo</th>
-            <th>Fecha subida</th>
-            <th>Fecha actualización</th>
             <th>Opciones</th>
           </tr>
         </thead>
@@ -48,13 +71,8 @@
               <td>{{ informacion.id_vuelo }}</td>
               <td>{{ informacion.sector_vuelo }}</td>
               <td>{{ informacion.fecha_vuelo }}</td>
-              <td>{{ informacion.create_at }}</td>
-              <td>{{ informacion.update_at }}</td>
               <td>
-                <form action="{% url 'edit_vuelo' informacion.id_vuelo %}" method="post">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-warning">Ver Imagenes Cargadas</button>
-                </form>
+                <button type="button" class="btn btn-success" onclick="location.href='{% url 'resultados' %}'">Ir A Detalle Vuelo</button>
               </td>
             </tr>
           {% endfor %}
@@ -62,29 +80,32 @@
       </table>
     </div>
   </div>
-  <script>
-    $(document).ready(function () {
-      $('#datatables').DataTable()
-    })
-  </script>
 {% endblock %}
-<div class="modal fade" id="verImagenesModal" tabindex="-1" aria-labelledby="verImagenesModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="verImagenesModalLabel">Imágenes Cargadas</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Contenido del modal (puedes agregar imágenes u otra información aquí) -->
-        <!-- Por ejemplo, puedes mostrar las imágenes asociadas al vuelo -->
-        {% for imagen in informacion.imagenes.all %}
-          <img src="{{ imagen.url }}" alt="Imagen" class="img-fluid" />
-        {% endfor %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>
+<script>
+  $(document).ready(function () {
+    // Verificar si la tabla existe
+    if ($('#datatables').length) {
+      // Destruir la tabla 'datatables' si ya existe una instancia de DataTables
+      if ($.fn.DataTable.isDataTable('#datatables')) {
+        $('#datatables').DataTable().destroy()
+      }
+    }
+  
+    // Inicializar la tabla 'datatables'
+    $('#datatables').DataTable({
+      retrieve: true,
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json'
+      },
+      search: {
+        caseInsensitive: true,
+        smart: false
+      },
+      columnDefs: {
+        targets: [2],
+        searchable: false,
+        orderable: true
+      }
+    })
+  })
+</script>
