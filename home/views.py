@@ -200,12 +200,13 @@ def resultados(request):
     vuelos = Vuelo.objects.all()
     vuelos_info = []
     for vuelo in vuelos:
-        imagenes = Imagenes.objects.filter(vuelo=vuelo, analizada=True)
+        images = Imagenes.objects.filter(vuelo_id=vuelo, analizada=True)
+        results = predict_images(images)
         vuelos_info.append({
             'vuelo': vuelo.id_vuelo,
-            'cantidad_imagenes': imagenes.count(),
+            'cantidad_imagenes': images.count(),
             'fecha': vuelo.fecha_vuelo,  # Solo la fecha, sin la hora
-            'resultados': [imagen.resultado for imagen in imagenes],  # Los resultados de la predicción
+            'resultados': results,  # Los resultados de la predicción
         })
 
     # Renderizar la plantilla con la información de los vuelos
@@ -254,25 +255,27 @@ def predict_images(images):
 
     # Predecir cada imagen
     results = []
+    print("Iniciando la predicción de las imágenes...")  # Nueva declaración de impresión
     for image in images:
         blob_client = blob_service_client.get_blob_client(
-            container="imagenes-sin-procesar", blob=str(image.nombre_imagen))
+            container="imagenes-sin-procesar", blob=(image.nombre_imagen))
 
         if blob_client.exists():
             stream = blob_client.download_blob().readall()
-            result = predictor.classify_image(
-                project_id, publish_iteration_name, stream)
+            result = predictor.classify_image(project_id, publish_iteration_name, stream)
             # Obtén el tag con el mayor porcentaje
-            top_prediction = max(result.predictions,
-                                 key=lambda prediction: prediction.probability)
+            top_prediction = max(result.predictions, key=lambda prediction: prediction.probability)
             # Convierte el porcentaje a un formato de porcentaje
             percentage = round(top_prediction.probability * 100, 1)
             # Almacena el nombre del tag y el porcentaje
-            results.append(
-                (image.nombre_imagen, top_prediction.tag_name, f"{percentage}%"))
+            results.append((image.nombre_imagen, top_prediction.tag_name, f"{percentage}%"))
+            print("Predicción de las imágenes completada.")  # Nueva declaración de impresión
+            print(f"Resultado de la predicción para la imagen {image.nombre_imagen}: {top_prediction.tag_name}, {percentage}%")  # Nueva declaración de impresión
         else:
-            print(
-                f"La imagen con nombre {image.nombre_imagen} no existe en el blob storage.")
+            print(f"La imagen con nombre {image.nombre_imagen} no existe en el blob storage.")
+            
+        image.resultado_prediccion = results
+        image.save()
 
     return results
 
@@ -292,3 +295,4 @@ def validar_imagenes(request, id_vuelo):
 
     # Devolver una respuesta, como una redirección o una respuesta JSON
     return redirect('resultados')
+

@@ -79,31 +79,3 @@ $(document).ready(function () {
         });
     });
 });
-
-$('#imagesModal').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget); // Botón que activó el modal
-    var id_vuelo = button.data('vuelo'); // Extraer el ID del vuelo de los datos del botón
-
-    console.log("ID del vuelo: ", id_vuelo); // Imprimir el ID del vuelo
-
-    // Hacer la solicitud AJAX para obtener las imágenes
-    $.ajax({
-        url: '/obtener_imagenes/' + id_vuelo + '/',
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            console.log("Respuesta del servidor: ", data); // Imprimir la respuesta del servidor
-
-            var imagesContainer = $('#imagesContainer');
-            imagesContainer.empty();
-
-            data.images.forEach(function (image) {
-                var html = '<div><img src="' + image.url + '" style="width: 100px;"><p>' + image.name + '</p></div>';
-                imagesContainer.append(html);
-            });
-        },
-        error: function (error) {
-            console.log("Error: ", error);
-        }
-    });
-});
