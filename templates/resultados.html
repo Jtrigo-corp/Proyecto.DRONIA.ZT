@@ -50,21 +50,19 @@
                                                 <h4 class="modal-title" id="myModalLabel">Detalles del Vuelo</h4>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                             </div>
-                                            {% for vuelo in vuelos_info %}
-                                                <div class="modal-body">
-                                                    <h2>Vuelo {{ vuelo.vuelo }}</h2>
-                                                    <p>Cantidad de imágenes: {{ vuelo.cantidad_imagenes }}</p>
-                                                    <p>Fecha: {{ vuelo.fecha }}</p>
-                                                    <h3>Resultados de la predicción:</h3>
-                                                    <ul>
-                                                        {% for resultado in vuelo.resultados %}
-                                                            <li>Nombre de la imagen: {{ resultado.0 }}</li>
-                                                            <li>Nombre de la especie del árbol: {{ resultado.1 }}</li>
-                                                            <li>Porcentaje de aceptación: {{ resultado.2 }}</li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            {% endfor %}
+                                            <div class="modal-body">
+                                                <h2>Vuelo {{ vuelo_info.vuelo }}</h2>
+                                                <p>Cantidad de imágenes: {{ vuelo_info.cantidad_imagenes }}</p>
+                                                <p>Fecha: {{ vuelo_info.fecha }}</p>
+                                                <h3>Resultados de la predicción:</h3>
+                                                <ul>
+                                                    {% for resultado in vuelo_info.resultados %}
+                                                        <li>Nombre de la imagen: {{ resultado.0 }}</li>
+                                                        <li>Nombre de la especie del árbol: {{ resultado.1 }}</li>
+                                                        <li>Porcentaje de aceptación: {{ resultado.2 }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-primary" id="validateButton">Validar</button>
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>

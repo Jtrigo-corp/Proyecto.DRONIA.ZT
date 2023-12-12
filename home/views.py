@@ -212,7 +212,6 @@ def resultados(request):
     # Renderizar la plantilla con la información de los vuelos
     return render(request, 'resultados.html', {'vuelos_info': vuelos_info})
 
-
 def detalle_vuelo(request, id_vuelo):
     vuelo = Vuelo.objects.get(id=id_vuelo)
     data = {
