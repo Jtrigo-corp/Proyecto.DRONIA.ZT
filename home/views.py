@@ -75,15 +75,16 @@ def index(request):
     return render(request, "pages/index.html", context)
 
 
-def ubicacion(request):
-    ubicaciones = Ubicacion.objects.all()
-    initialMap = folium.Map(location=[-27.370371, -70.322529], zoom_start=13.5)
-    context = {
-        'segment': 'ubicacion',
-        'home': initialMap._repr_html_(),
-        # 'products' : Product.objects.all()
-    }
-    return render(request, "pages/ubicacion.html", context)
+def show_map(request):
+    # Crear un mapa de Folium
+    m = folium.Map(location=[-27.370371, -70.322529], zoom_start=13.5)
+
+    # Convertir el mapa a HTML
+    m = m._repr_html_()
+
+    # Pasar el mapa a la plantilla
+    context = {'my_map': m}
+    return render(request, 'ubicaciones.html', context)
 
 
 def tables(request):
@@ -254,11 +255,11 @@ def predict_images(images):
         os.getenv('AZURE_STORAGE_CONNECTION_STRING'))
 
     # Imprimir los nombres de todos los blobs en el contenedor 'imagenes-sin-procesar'
-    #container_client = blob_service_client.get_container_client('imagenes-sin-procesar')
-    #blobs = container_client.list_blobs()
+    container_client = blob_service_client.get_container_client('imagenes-sin-procesar')
+    blobs = container_client.list_blobs()
 
-    #for blob in blobs:
-    #    print(blob.name)
+    for blob in blobs:
+        print(blob.name)
 
     # Predecir cada imagen
     results = []
@@ -282,18 +283,44 @@ def predict_images(images):
 
 
 def validar_imagenes(request, id_vuelo):
-    # Obtener las imágenes del vuelo
-    images = Imagenes.objects.filter(vuelo_id=id_vuelo, analizada=False)
+    # Configuración para Custom Vision
+    ENDPOINT = "https://eastus.api.cognitive.microsoft.com/"
+    prediction_key = "d34506be224747ad9e403b138e1977d1"
+    project_id = "6f464655-adf2-46f4-a04a-979ee9c7ed63"
+    publish_iteration_name = "Modelo-Train"
 
-    # Predecir las imágenes
-    results = predict_images(images)
+    # Crear un cliente de predicción
+    credentials = ApiKeyCredentials(
+        in_headers={"Prediction-key": prediction_key})
+    predictor = CustomVisionPredictionClient(ENDPOINT, credentials)
 
-    # Guardar los resultados en la base de datos y marcar las imágenes como analizadas
-    for image, result in zip(images, results):
-        image.resultado = str(result)
-        image.analizada = True
-        image.save()
+    # Crear un cliente de Azure Blob Storage
+    os.environ['AZURE_STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=https;AccountName=droniastorage1;AccountKey=ajoSCjr7SO3Ix2jUmAXjOpOkM5wo6fwLicXRk9qYKdYryUjOnmwobl7Fmyus0titUygcsqVCWPHb+AStWXW6Bw==;EndpointSuffix=core.windows.net'
+    blob_service_client = BlobServiceClient.from_connection_string(
+        os.getenv('AZURE_STORAGE_CONNECTION_STRING'))
 
-    # Devolver una respuesta, como una redirección o una respuesta JSON
-    return redirect('resultados')
+    # Obtener una lista de todos los blobs en el contenedor 'imagenes-sin-procesar'
+    container_client = blob_service_client.get_container_client('imagenes-sin-procesar')
+    blobs = container_client.list_blobs()
+
+    # Predecir cada imagen
+    results = []
+    for blob in blobs:
+        # Verificar si el nombre del blob comienza con el ID del vuelo
+        if blob.name.startswith(str(id_vuelo)):
+            blob_client = blob_service_client.get_blob_client(
+                container="imagenes-sin-procesar", blob=blob.name)
+
+            if blob_client.exists():
+                stream = blob_client.download_blob().readall()
+                result = predictor.classify_image(project_id, publish_iteration_name, stream)
+                # Obtén el tag con el mayor porcentaje
+                top_prediction = max(result.predictions, key=lambda prediction: prediction.probability)
+                # Convierte el porcentaje a un formato de porcentaje
+                percentage = round(top_prediction.probability * 100, 1)
+                # Almacena el nombre del tag y el porcentaje
+                results.append((blob.name, top_prediction.tag_name, f"{percentage}%"))
+            else:
+                print(f"El blob con nombre {blob.name} no existe en el blob storage.")
+    return results
 

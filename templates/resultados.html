@@ -47,23 +47,20 @@
                                     <div class="modal-dialog modal-xl" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h4 class="modal-title" id="myModalLabel">Detalles del Vuelo</h4>
+                                                <h4 class="modal-title" id="myModalLabel">Detalles del Vuelo {{ vuelo_info.vuelo }}</h4>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                             </div>
                                             <div class="modal-body">
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        <div class="col-4 col-md-4">
-                                                            <h2>Vuelo {{ vuelo_info.vuelo }}</h2>
-                                                        </div>
-                                                        <div class="col-4 col-md-4">
+                                  
+                                                    <div class="row col-md-12">
+                                                        <div class="col-6">
                                                             <p>Cantidad de imágenes: {{ vuelo_info.cantidad_imagenes }}</p>
                                                         </div>
-                                                        <div class="col-4 col-md-4">
+                                                        <div class="col-6">
                                                             <p>Fecha: {{ vuelo_info.fecha }}</p>
                                                         </div>
                                                     </div>
-                                                </div>
+                             
                                                 
                                                 <h3>Resultados de la predicción:</h3>
                                                 <table class="table">
@@ -122,10 +119,8 @@
                 orderable: true
             }
         });
-    
-        // Inicializar la tabla 'validationResultsTable'
+
         $('#validationResultsTable').DataTable();
         });
     </script>
-
 {% endblock %}

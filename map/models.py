@@ -42,9 +42,12 @@ class Imagenes(models.Model):
     
 class Ubicaciones(models.Model):
     id_ubicaciones = models.AutoField(primary_key=True)
+    vuelos = models.ForeignKey('Vuelo', on_delete=models.CASCADE)
     latitud = models.FloatField()
     longitud = models.FloatField()
     numero_asignacion = models.IntegerField()
+
+
     class Meta:
         db_table = 'map_ubicaciones'
 

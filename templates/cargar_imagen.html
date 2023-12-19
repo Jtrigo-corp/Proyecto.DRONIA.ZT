@@ -13,19 +13,23 @@
       <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}">
         {% csrf_token %}
         <!-- Agrega aquí los campos necesarios para el vuelo -->
-        <div class="col-3">
-          <label for="sector_vuelo">Sector de Vuelo:</label>
+        <div class="col-2">
+          <label for="sector_vuelo">Sector del Vuelo:</label>
           <input type="text" name="sector_vuelo" id="sector_vuelo" class="form-control" required />
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <label for="fecha_vuelo">Fecha de Vuelo:</label>
           <input type="date" name="fecha_vuelo" id="fecha_vuelo" class="form-control" required />
         </div>
-        <div class="col-3">
-          <label for="operador">ID del operador</label>
-          <input type="text" class="form-control" id="operador" name="operador" />
+        <div class="col-2">
+          <label for="latitud">Latitud</label>
+          <input type="text" class="form-control" id="latitud" name="latitud" />
         </div>
-        <div class="col-3 pt-4">
+        <div class="col-2">
+          <label for="longitud">Longitud</label>
+          <input type="text" class="form-control" id="longitud" name="longitud" />
+        </div>
+        <div class="col-4 pt-4">
           <button type="submit" class="btn btn-primary">Guardar Vuelo</button>
         </div>
       </form>
@@ -35,16 +39,16 @@
       <!-- Formulario para cargar imágenes asociadas a un vuelo -->
       <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="col-3">
+        <div class="col-4">
           <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
         </div>
-        <div class="col-3">
-          <label for="image" class="form-control-plaintext">Seleccionar Imágenes:</label>
+        <div class="col-2">
+          <label for="image" class="form-control-plaintext">Selecc. Imágenes:</label>
         </div>
         <div class="col-3">
           <input type="file" class="form-control" id="image" name="image" multiple required />
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <button type="submit" class="btn btn-primary">Guardar Imágenes</button>
         </div>
       </form>
@@ -62,6 +66,8 @@
             <th>N° del Vuelo</th>
             <th>Sector Vuelo</th>
             <th>Fecha Vuelo</th>
+            <th>Latitud</th>
+            <th>Longitud</th>
             <th>Opciones</th>
           </tr>
         </thead>
@@ -71,8 +77,10 @@
               <td>{{ informacion.id_vuelo }}</td>
               <td>{{ informacion.sector_vuelo }}</td>
               <td>{{ informacion.fecha_vuelo }}</td>
+              <td>{{ informacion.fecha_vuelo }}</td>
+              <td>{{ informacion.fecha_vuelo }}</td>
               <td>
-                <button type="button" class="btn btn-success" onclick="location.href='{% url 'resultados' %}'">Ir A Detalle Vuelo</button>
+                <button type="button" class="btn btn-success" onclick="location.href='{% url 'resultados' %}'">Detalle</button>
               </td>
             </tr>
           {% endfor %}

@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path('', views.index,  name='index'),
     path('tables/', views.tables, name='tables'),
-    path('ubicacion/', views.ubicacion, name='ubicacion'),
+    #path('ubicacion/', views.ubicacion, name='ubicacion'),
     path('resultados/', views.resultados, name='resultados'),
     path('list_vuelos/', views.list_vuelos, name='list_vuelos'),
     path('carga/', views.carga, name='carga'),
@@ -15,6 +15,8 @@ urlpatterns = [
          views.detalle_vuelo, name='detalle_vuelo'),
     path('predecir_imagenes/<int:id_vuelo>/',
          views.predecir_imagenes, name='predecir_imagenes'),
+    path('ubicaciones/', views.show_map, name='ubicaciones'),
+    path('mapa/', views.show_map, name='show_map'),
 
 
 ]
