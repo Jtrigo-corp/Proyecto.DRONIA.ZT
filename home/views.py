@@ -20,7 +20,7 @@ from django.contrib.auth import logout
 import folium
 from rest_framework import views, response
 from azure.storage.blob import BlobServiceClient
-from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
+
 from msrest.authentication import ApiKeyCredentials
 from django.core.files.storage import default_storage
 from django.shortcuts import render, redirect
@@ -36,6 +36,8 @@ from api.serializers import *
 import os
 from django.contrib.auth.decorators import login_required
 from django.utils.datastructures import MultiValueDictKeyError
+from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
+from msrest.authentication import ApiKeyCredentials
 from azure.storage.blob import BlobServiceClient, ContentSettings
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -200,11 +202,11 @@ def resultados(request):
     vuelos = Vuelo.objects.all()
     vuelos_info = []
     for vuelo in vuelos:
-        images = Imagenes.objects.filter(vuelo_id=vuelo, analizada=True)
-        results = predict_images(images)
+        imagenes = Imagenes.objects.filter(vuelo=vuelo, analizada=True)
+        results = predict_images(imagenes)
         vuelos_info.append({
             'vuelo': vuelo.id_vuelo,
-            'cantidad_imagenes': images.count(),
+            'cantidad_imagenes': imagenes.count(),
             'fecha': vuelo.fecha_vuelo,  # Solo la fecha, sin la hora
             'resultados': results,  # Los resultados de la predicción
         })
@@ -228,7 +230,6 @@ def predecir_imagenes(request, id_vuelo):
     images = Imagenes.objects.filter(vuelo_id=id_vuelo)
 
     # Predecir las imágenes usando Custom Vision
-    # Aquí estoy asumiendo que tienes una función `predict_images` que toma las imágenes y devuelve los resultados de la predicción
     results = predict_images(images)
 
     # Devolver los resultados como una respuesta JSON
@@ -252,12 +253,19 @@ def predict_images(images):
     blob_service_client = BlobServiceClient.from_connection_string(
         os.getenv('AZURE_STORAGE_CONNECTION_STRING'))
 
+    # Imprimir los nombres de todos los blobs en el contenedor 'imagenes-sin-procesar'
+    #container_client = blob_service_client.get_container_client('imagenes-sin-procesar')
+    #blobs = container_client.list_blobs()
+
+    #for blob in blobs:
+    #    print(blob.name)
+
     # Predecir cada imagen
     results = []
     print("Iniciando la predicción de las imágenes...")  # Nueva declaración de impresión
     for image in images:
         blob_client = blob_service_client.get_blob_client(
-            container="imagenes-sin-procesar", blob=(image.nombre_imagen))
+            container="imagenes-sin-procesar", blob=image.nombre_imagen)
 
         if blob_client.exists():
             stream = blob_client.download_blob().readall()
@@ -268,14 +276,8 @@ def predict_images(images):
             percentage = round(top_prediction.probability * 100, 1)
             # Almacena el nombre del tag y el porcentaje
             results.append((image.nombre_imagen, top_prediction.tag_name, f"{percentage}%"))
-            print("Predicción de las imágenes completada.")  # Nueva declaración de impresión
-            print(f"Resultado de la predicción para la imagen {image.nombre_imagen}: {top_prediction.tag_name}, {percentage}%")  # Nueva declaración de impresión
         else:
-            print(f"La imagen con nombre {image.nombre_imagen} no existe en el blob storage.")
-            
-        image.resultado_prediccion = results
-        image.save()
-
+            print(f"La imagen con ID {image.id_imagen} no existe en el blob storage.")
     return results
 
 

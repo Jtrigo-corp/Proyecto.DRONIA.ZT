@@ -44,28 +44,46 @@
                                 
                                 {% for vuelo_info in vuelos_info %}
                                 <div class="modal fade" id="myModal{{ vuelo_info.vuelo }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                                    <div class="modal-dialog" role="document">
+                                    <div class="modal-dialog modal-xl" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
                                                 <h4 class="modal-title" id="myModalLabel">Detalles del Vuelo</h4>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                             </div>
                                             <div class="modal-body">
-                                                <h2>Vuelo {{ vuelo_info.vuelo }}</h2>
-                                                <p>Cantidad de imágenes: {{ vuelo_info.cantidad_imagenes }}</p>
-                                                <p>Fecha: {{ vuelo_info.fecha }}</p>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="col-4 col-md-4">
+                                                            <h2>Vuelo {{ vuelo_info.vuelo }}</h2>
+                                                        </div>
+                                                        <div class="col-4 col-md-4">
+                                                            <p>Cantidad de imágenes: {{ vuelo_info.cantidad_imagenes }}</p>
+                                                        </div>
+                                                        <div class="col-4 col-md-4">
+                                                            <p>Fecha: {{ vuelo_info.fecha }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
                                                 <h3>Resultados de la predicción:</h3>
-                                                <ul>
-                                                    {% for resultado in vuelo_info.resultados %}
-                                                        <li>Nombre de la imagen: {{ resultado.0 }}</li>
-                                                        <li>Nombre de la especie del árbol: {{ resultado.1 }}</li>
-                                                        <li>Porcentaje de aceptación: {{ resultado.2 }}</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-primary" id="validateButton">Validar</button>
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Nombre de la imagen</th>
+                                                            <th>Nombre de la especie del árbol</th>
+                                                            <th>Porcentaje de aceptación</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for resultado in vuelo_info.resultados %}
+                                                            <tr>
+                                                                <td>{{ resultado.0|slice:":25" }}</td>
+                                                                <td>{{ resultado.1 }}</td>
+                                                                <td>{{ resultado.2 }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                     </div>
