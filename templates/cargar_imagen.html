@@ -6,52 +6,99 @@
 {% endblock %}
 
 {% block content %}
-  <h3>Formulario De Registro de Vuelos y Subida de Imagenes</h3>
+  <h3>Formularios Para Registrar Vuelos y Para Subir Imagenes</h3>
   <hr class="my-4 bg-light" style="height: 3px;" />
   <div class="container-flex">
-    <div class="col-md-12 col-lg-12 col-xl-12">
-      <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}">
-        {% csrf_token %}
-        <!-- Agrega aquí los campos necesarios para el vuelo -->
-        <div class="col-2">
-          <label for="sector_vuelo">Sector del Vuelo:</label>
-          <input type="text" name="sector_vuelo" id="sector_vuelo" class="form-control" required />
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#flightModal">Registrar Vuelo</button>
+
+    <!-- Modal de registro de vuelos -->
+    <div class="modal fade" id="flightModal" tabindex="-1" aria-labelledby="flightModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="flightModalLabel">Formulario De Registro de Vuelos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Aquí va el formulario de registro de vuelos -->
+            <div class="col-md-12 col-lg-12 col-xl-12">
+              <form method="post" id="flightForm" name="flightForm" class="row g-3" action="{% url 'cargar_imagen' %}">
+                {% csrf_token %}
+                <!-- Agrega aquí los campos necesarios para el vuelo -->
+                <div class="container-flex">
+                  <div class="col-12 col-sm-6 col-md-4 col-lg-12">
+                    <label for="sector_vuelo">Sector del Vuelo:</label>
+                    <input type="text" name="sector_vuelo" placeholder="Ingresar El Sector Donde Piloto El Vuelo" id="sector_vuelo" class="form-control" required />
+                  </div>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+                  <div class="col-12 col-sm-6 col-md-4 col-lg-12">
+                    <label for="fecha_vuelo">Fecha de Vuelo:</label>
+                    <input type="date" name="fecha_vuelo" placeholder="Ingresar La Fecha Que Se Realizó El Vuelo" id="fecha_vuelo" class="form-control" required />
+                  </div>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+                  <div class="col-12 col-sm-6 col-md-4 col-lg-12">
+                    <label for="latitud">Latitud</label>
+                    <input type="text" class="form-control" placeholder="Ingresar La Latitud Registrada" id="latitud" name="latitud" />
+                  </div>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+                  <div class="col-12 col-sm-6 col-md-4 col-lg-12">
+                    <label for="longitud">Longitud</label>
+                    <input type="text" class="form-control" placeholder="Ingresar La Longitud Registrada" id="longitud" name="longitud" />
+                  </div>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+                  <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Guardar Vuelo</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="col-2">
-          <label for="fecha_vuelo">Fecha de Vuelo:</label>
-          <input type="date" name="fecha_vuelo" id="fecha_vuelo" class="form-control" required />
-        </div>
-        <div class="col-2">
-          <label for="latitud">Latitud</label>
-          <input type="text" class="form-control" id="latitud" name="latitud" />
-        </div>
-        <div class="col-2">
-          <label for="longitud">Longitud</label>
-          <input type="text" class="form-control" id="longitud" name="longitud" />
-        </div>
-        <div class="col-4 pt-4">
-          <button type="submit" class="btn btn-primary">Guardar Vuelo</button>
-        </div>
-      </form>
+      </div>
     </div>
-    <br />
-    <div class="col-md-12 col-lg-12 col-xl-12">
-      <!-- Formulario para cargar imágenes asociadas a un vuelo -->
-      <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="col-4">
-          <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
+
+    <div id="alert" class="alert alert-success d-none" role="alert">
+      Vuelo Registrado En El Mapa Ubicacion De Vuelos
+    </div>
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#imageModal">Subir Imágenes</button>
+    <!-- Modal de subida de imágenes -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="imageModalLabel">Formulario de Subida de Imágenes</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Aquí va el formulario de subida de imágenes -->
+            <div class="col-md-12 col-lg-12 col-xl-12">
+              <!-- Formulario para cargar imágenes asociadas a un vuelo -->
+              <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="container-flex">
+                  <div class="col-sm-12 col-md-12 col-lg-12">
+                    <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
+                  </div>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+                  <div class="row col-sm-12 col-md-12 col-lg-12">
+                    <div class="col-sm-5 col-md-5 col-lg-5">
+                      <label for="image" class="form-control-plaintext">Selec. Imágenes:</label>
+                    </div>
+                    <div class="col-sm-8 col-md-8 col-lg-7">
+                      <input type="file" class="form-control" id="image" name="image" multiple required />
+                    </div>
+                    <hr class="my-4 bg-light" style="height: 3px;" />
+                  </div>
+                  <div class="col-sm-12 col-md-12 col-lg-12">
+                    <button type="submit" class="btn btn-primary">Guardar Imágenes</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="col-2">
-          <label for="image" class="form-control-plaintext">Selecc. Imágenes:</label>
-        </div>
-        <div class="col-3">
-          <input type="file" class="form-control" id="image" name="image" multiple required />
-        </div>
-        <div class="col-2">
-          <button type="submit" class="btn btn-primary">Guardar Imágenes</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -116,4 +163,20 @@
       }
     })
   })
+</script>
+<script>
+  $(document).ready(function() {
+    $('#flightForm button[type="submit"]').on('click', function(event) {
+      event.preventDefault();
+      console.log('Botón de envío clickeado');
+  
+      // Aquí puedes agregar el código para enviar el formulario
+  
+      // Cierra el modal de registro de vuelos
+      $('#flightModal').modal('hide');
+  
+      // Muestra la alerta
+      $('#alert').removeClass('d-none');
+    });
+  });
 </script>

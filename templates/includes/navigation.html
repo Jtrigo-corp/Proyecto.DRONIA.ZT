@@ -89,9 +89,9 @@
               <span>Jorge Trigo</span>
               {% if request.user.is_authenticated %}
                 {% if request.user.is_superuser %}
-                <a href="{% url 'admin:logout' %}" class="dud-logout" title="Logout">
+                <a href="{% url 'admin:logout' %}" class="dud-logout" title="Cerrar Sesión">
                 {% else %}
-                <a href="{% url 'logout' %}" class="dud-logout" title="Logout">
+                <a href="{% url 'logout' %}" class="dud-logout" title="Cerrar Sesión">
                 {% endif %}
                   <i class="feather icon-log-out"></i>
                 </a>
@@ -104,7 +104,7 @@
                   Perfil</a></li>
               <li><a href="#" class="dropdown-item"><i class="feather icon-mail"></i> Mis
                   Mensajes</a></li>
-              <!--{% if request.user.is_authenticated %}
+              {% if request.user.is_authenticated %}
               <li>
                 {% if request.user.is_superuser %}
                 <a href="{% url 'admin:password_change' %}" class="dropdown-item">
@@ -114,7 +114,7 @@
                   <i class="feather icon-edit"></i>Cambiar contraseña
                 </a>
               </li>
-              {% endif %} -->
+              {% endif %}
             </ul>
           </div>
         </div>

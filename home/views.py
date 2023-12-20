@@ -77,7 +77,7 @@ def index(request):
 
 def show_map(request):
     # Crear un mapa de Folium
-    m = folium.Map(location=[-27.370371, -70.322529], zoom_start=14)
+    m = folium.Map(location=[-27.370371, -70.322529], zoom_start=14.5)
 
     # Obtener todos los vuelos
     vuelos = Vuelo.objects.all()
