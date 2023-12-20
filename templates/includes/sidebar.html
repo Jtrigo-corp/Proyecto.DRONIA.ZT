@@ -25,7 +25,7 @@
             <span class="pcoded-micon"><i class="feather icon-home"></i></span><span class="pcoded-mtext">Inicio</span>
           </a>
         </li>
-        <!-- {% if not request.user.is_authenticated %}
+         {% if not request.user.is_authenticated %}
         <li
           data-username="Authentication Sign up Sign in reset password Change password Personal information profile settings map form subscribe"
           class="nav-item pcoded-hasmenu">
@@ -36,14 +36,14 @@
             <li class=""><a href="{% url 'register' %}" class="">Registrarse</a></li>
           </ul>
         </li>
-        {% endif %}-->
+        {% endif %}
         <li class="nav-item {% if 'cargar_imagen' in segment %}active{% endif %}">
           <a href="{% url 'cargar_imagen' %}" class="nav-link "><span class="pcoded-micon"><i
-                class="feather icon-server text-c-green"></i></span><span class="pcoded-mtext">Cargar Datos Dron</span></a>
+                class="feather icon-server text-c-green"></i></span><span class="pcoded-mtext">Cargar Y Procesar Imagenes</span></a>
         </li>
         <li class="nav-item {% if 'resultados' in segment %}active{% endif %}">
           <a href="{% url 'resultados' %}" class="nav-link "><span class="pcoded-micon"><i
-                class="feather icon-clipboard text-c-green"></i></span><span class="pcoded-mtext">Analizar Datos Dron</span></a>
+                class="feather icon-clipboard text-c-green"></i></span><span class="pcoded-mtext">Visualización De Datos</span></a>
         </li>
         <li class="nav-item {% if 'ubicaciones' in segment %}active{% endif %}">
           <a href="{% url 'ubicaciones' %}" class="nav-link "><span class="pcoded-micon"><i
@@ -128,14 +128,14 @@
           data-username="Authentication Sign up Sign in reset password Change password Personal information profile settings map form subscribe"
           class="nav-item pcoded-hasmenu">
           <a href="javascript:" class="nav-link "><span class="pcoded-micon"><i
-                class="feather icon-lock"></i></span><span class="pcoded-mtext">Authentication</span></a>
+                class="feather icon-lock"></i></span><span class="pcoded-mtext">Autenticación</span></a>
           <ul class="pcoded-submenu">
-            <li class=""><a href="{% url 'register' %}" class="" target="_blank">Sign up</a></li>
-            <li class=""><a href="{% url 'login' %}" class="" target="_blank">Sign in</a></li>
+            <li class=""><a href="{% url 'register' %}" class="" target="_blank">Registrarse</a></li>
+            <li class=""><a href="{% url 'login' %}" class="" target="_blank">Iniciar Sesión</a></li>
           </ul>
         </li>
         <li data-username="Profile Page" class="nav-item {% if 'profile' in segment %}active{% endif %}"><a href="{% url 'profile' %}" class="nav-link"><span
-              class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">Profile
+              class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">Perfil
               Page</span></a>
         </li>
         <li data-username="Sample Page" class="nav-item {% if 'sample_page' in segment %}active{% endif %}"><a href="{% url 'sample_page' %}" class="nav-link"><span
