@@ -79,6 +79,17 @@ def show_map(request):
     # Crear un mapa de Folium
     m = folium.Map(location=[-27.370371, -70.322529], zoom_start=13.5)
 
+    # Obtener todos los vuelos
+    vuelos = Vuelo.objects.all()
+
+    # Agregar un marcador para cada vuelo
+    for vuelo in vuelos:
+        if vuelo.latitud is not None and vuelo.longitud is not None:  # Asegúrate de que la latitud y la longitud no sean None
+            folium.Marker(
+                location=[vuelo.latitud, vuelo.longitud],
+                popup=f'Vuelo: {vuelo.id_vuelo}',
+            ).add_to(m)
+
     # Convertir el mapa a HTML
     m = m._repr_html_()
 
@@ -129,20 +140,22 @@ cantidad_predicciones = contar_blobs("imagenes-analizadas")
 
 def cargar_imagen(request):
     if request.method == 'POST':
-        form_vuelo = IngresarVueloForm(request.POST)
-        if form_vuelo.is_valid():
-            form_vuelo.save()
+        form_vuelo = IngresarVueloForm()  # Define form_vuelo aquí
+        formulario = DatosForm()  # Define formulario aquí
+        if request.method == 'POST':
+            form_vuelo = IngresarVueloForm(request.POST)
+            formulario = DatosForm(request.POST, request.FILES)  # Asigna un valor a formulario
+            if form_vuelo.is_valid():
+                form_vuelo.save()
 
-        formulario = DatosForm(vuelos=Vuelo.objects.all(),
-                               data=request.POST, files=request.FILES)
-        print(request.FILES)  # Imprime los archivos subidos
-        if formulario.is_valid():
-            with transaction.atomic():
-                # Guardar el formulario en la base de datos
-                formulario.save()
+            print(request.FILES)  # Imprime los archivos subidos
+            if formulario.is_valid():
+                with transaction.atomic():
+                    # Guardar el formulario en la base de datos
+                    formulario.save()
 
-                # Obtener el vuelo asociado al formulario
-                vuelo = formulario.cleaned_data['vuelo']
+                    # Obtener el vuelo asociado al formulario
+                    vuelo = formulario.cleaned_data['vuelo']
 
                 load_dotenv('.env')
                 # Resto del código para guardar imágenes en Azure Blob Storage
@@ -197,6 +210,14 @@ def cargar_imagen(request):
     informaciones = Vuelo.objects.all()
     return render(request, 'cargar_imagen.html', {'form_vuelo': form_vuelo, 'formulario': formulario, 'informaciones': informaciones})
 
+import json
+from django.core.serializers import serialize
+from django.shortcuts import render
+
+def some_view(request):
+    vuelos = Vuelo.objects.all()  # Obtén todos los objetos Vuelo
+    vuelos_json = serializers.serialize('json', vuelos)
+    return render(request, 'ubicaciones.html', {'vuelos': vuelos_json})
 
 def resultados(request):
     # Obtener todos los vuelos y la información relacionada

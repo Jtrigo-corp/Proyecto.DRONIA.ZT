@@ -9,6 +9,10 @@
 <div class="container daily-sales col-md-12">
     <div class="row col-md-12">
         <p class="b-title"><h3>Ubicaciones</h3></p>
+        {% for vuelo in vuelos %}
+            {{ vuelo.latitud }}, {{ vuelo.longitud }}
+            
+        {% endfor %}
     </div>
     <div class="row col-md-12 mb-2">
         <div class="col-md-2">
@@ -86,8 +90,16 @@
     </div>
         <div class="row col-md-12">
             <div class="col-md-8">
-                {{my_map|safe}}
+                
+                <div id="my_map" style="height: 180px;">
+                    {{my_map|safe}}
+                    {% for vuelo in vuelos %}
+                        {{ vuelo.latitud }}, {{ vuelo.longitud }}
+                    {% endfor %}
+                </div>
             </div>
+            
+
             <div class="row col-md-4">
                 <div class="col-md-12">
                     <div class="card daily-sales">
@@ -129,4 +141,18 @@
             </div>
         </div>
 </div>
+<script type="text/javascript">
+    var vuelos = JSON.parse('{{ vuelos|safe }}');
+    var map = L.map('my_map').setView([vuelos[0].latitud, vuelos[0].longitud], 13);  // Inicializa el mapa centrado en el primer vuelo
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {  // Usa OpenStreetMap como capa base
+        maxZoom: 19,
+    }).addTo(map);
+
+    for (var i = 0; i < vuelos.length; i++) {
+        var vuelo = vuelos[i];
+        L.marker([vuelo.latitud, vuelo.longitud]).addTo(map)  // Agrega un marcador para cada vuelo
+            .bindPopup('Vuelo: ' + vuelo.id_vuelo);
+    }
+</script>
 {% endblock %}

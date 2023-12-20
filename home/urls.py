@@ -17,6 +17,8 @@ urlpatterns = [
          views.predecir_imagenes, name='predecir_imagenes'),
     path('ubicaciones/', views.show_map, name='ubicaciones'),
     path('mapa/', views.show_map, name='show_map'),
+    #path('ubicacion/', views.ubicacion, name='ubicacion'),
+
 
 
 ]

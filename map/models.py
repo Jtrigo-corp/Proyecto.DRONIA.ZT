@@ -16,6 +16,8 @@ class Operador(models.Model):
 class Vuelo(models.Model):
     id_vuelo = models.AutoField(primary_key=True)
     sector_vuelo = models.CharField(max_length=255)
+    latitud = models.FloatField(null=True)
+    longitud = models.FloatField(null=True)
     fecha_vuelo = models.DateField()
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now_add=True)
@@ -42,10 +44,8 @@ class Imagenes(models.Model):
     
 class Ubicaciones(models.Model):
     id_ubicaciones = models.AutoField(primary_key=True)
-    vuelos = models.ForeignKey('Vuelo', on_delete=models.CASCADE)
-    latitud = models.FloatField()
-    longitud = models.FloatField()
-    numero_asignacion = models.IntegerField()
+    direccion = models.CharField(max_length=255, null=True)
+    vuelo_id = models.ForeignKey('Vuelo', on_delete=models.CASCADE, null=True)
 
 
     class Meta:
