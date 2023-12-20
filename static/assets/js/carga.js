@@ -80,5 +80,18 @@ $(document).ready(function () {
     });
 });
 
-
+$(document).ready(function() {
+    $('#flightForm button[type="submit"]').on('click', function(event) {
+      event.preventDefault();
+      console.log('Botón de envío clickeado');
+  
+      // Aquí puedes agregar el código para enviar el formulario
+  
+      // Cierra el modal de registro de vuelos
+      $('#flightModal').modal('hide');
+  
+      // Muestra la alerta
+      $('#alert').removeClass('d-none');
+    });
+  });
 

@@ -6,13 +6,46 @@
 {% endblock %}
 
 {% block content %}
+  <style>
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: 1s all;
+      opacity: 0;
+    }
+    .loading.show {
+      opacity: 1;
+    }
+    .loading .spin {
+      border: 3px solid hsla(185, 100%, 62%, 0.2);
+      border-top-color: #3cefff;
+      border-radius: 50%;
+      width: 3em;
+      height: 3em;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
   <h3>Formularios Para Registrar Vuelos y Para Subir Imagenes</h3>
   <hr class="my-4 bg-light" style="height: 3px;" />
   <div class="container-flex">
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#flightModal">Registrar Vuelo</button>
 
     <!-- Modal de registro de vuelos -->
-    <div class="modal fade" id="flightModal" tabindex="-1" aria-labelledby="flightModalLabel" aria-hidden="true">
+    <div class="modal fade" id="flightModal" tabindex="-1" aria-labelledby="flightModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -57,9 +90,7 @@
       </div>
     </div>
 
-    <div id="alert" class="alert alert-success d-none" role="alert">
-      Vuelo Registrado En El Mapa Ubicacion De Vuelos
-    </div>
+    <div id="alert" class="alert alert-success d-none" role="alert">Vuelo Registrado En El Mapa Ubicacion De Vuelos</div>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#imageModal">Subir Imágenes</button>
     <!-- Modal de subida de imágenes -->
@@ -127,7 +158,7 @@
               <td>{{ informacion.latitud }}</td>
               <td>{{ informacion.longitud }}</td>
               <td>
-                <button type="button" class="btn btn-success" onclick="location.href='{% url 'resultados' %}'">Predecir</button>
+                <button type="button" name="predecir" id="predecir" class="btn btn-success predecir" onclick="location.href='{% url 'resultados' %}'">Predecir</button>
               </td>
             </tr>
           {% endfor %}
@@ -135,6 +166,92 @@
       </table>
     </div>
   </div>
+  <script>
+    //======================================================================
+    // LOADING
+    //======================================================================
+    var Loading = (loadingDelayHidden = 0) => {
+      //-----------------------------------------------------
+      // Variables
+      //-----------------------------------------------------
+      // HTML
+      let loading = null
+      // Retardo para borrar
+      const myLoadingDelayHidden = loadingDelayHidden
+    
+      //-----------------------------------------------------
+      // Funciones
+      //-----------------------------------------------------
+    
+      /**
+       * Mostrar HTML
+       */
+      function showLoading() {
+        // Comprueba que exista el HTML
+        if (loading !== null) {
+          // Muestra el HTML de "cargando..." añadiendo la clase .show
+          loading.classList.add('show')
+        }
+      }
+    
+      /**
+       * Ocultar HTML
+       */
+      function hideLoading() {
+        // Comprueba que exista el HTML
+        if (loading !== null) {
+          // Oculta el HTML de "cargando..." quitando la clase .show
+          loading.classList.remove('show')
+    
+          // Borra el HTML
+          setTimeout(function () {
+            loading.remove()
+          }, myLoadingDelayHidden)
+        }
+      }
+    
+      /**
+       * Método que inicia la lógica
+       */
+      function init() {
+        /* Comprobar que el HTML esté cargadas */
+        $(document).ready(function () {
+          let loading = $('.loading')
+    
+          /* Escuchar el evento click en todos los botones "predecir" */
+          $('#datatables').on('click', '.predecir', function () {
+            /* Muestra la pantalla de carga */
+            loading.addClass('show')
+    
+            /* Realizar la predicción */
+            let id_vuelo = $(this).closest('tr').children('td:first').text() // Obtiene el ID del vuelo desde la primera celda de la fila
+            let url = '/predecir_imagenes/' + id_vuelo + '/' // Construye la URL para la predicción
+            $.ajax({
+              url: url, // Usa la URL construida
+              method: 'GET', // Reemplaza esto con el método HTTP que tu vista requiere
+              success: function (data) {
+                console.log(data) // Imprime la respuesta en la consola
+    
+                /* Redirige a la página de resultados */
+                window.location.href = '/resultados/' // Reemplaza esto con la URL de tu página de resultados
+              },
+              complete: function () {
+                // Oculta la pantalla de carga cuando la solicitud AJAX está completa
+                loading.removeClass('show')
+              }
+            })
+          })
+        })
+      }
+    
+      return {
+        init: init
+      }
+    }
+    
+    // Para usarlo se declara e inicia. El número es el tiempo transcurrido para borra el HTML una vez cargado todos los elementos, en este caso 1 segundo: 1000 milisegundos,
+    Loading(1000).init()
+  </script>
 {% endblock %}
 <script>
   $(document).ready(function () {
@@ -163,20 +280,4 @@
       }
     })
   })
-</script>
-<script>
-  $(document).ready(function() {
-    $('#flightForm button[type="submit"]').on('click', function(event) {
-      event.preventDefault();
-      console.log('Botón de envío clickeado');
-  
-      // Aquí puedes agregar el código para enviar el formulario
-  
-      // Cierra el modal de registro de vuelos
-      $('#flightModal').modal('hide');
-  
-      // Muestra la alerta
-      $('#alert').removeClass('d-none');
-    });
-  });
 </script>

@@ -164,7 +164,7 @@ def cargar_imagen(request):
                     print("Iniciando la subida de imágenes...")
                     images = request.FILES.getlist('image')
                     # Verificar que estás obteniendo las imágenes correctamente
-                    print(f"Imágenes: {images}")
+                    
 
                     os.environ['AZURE_STORAGE_CONNECTION_STRING'] = 'DefaultEndpointsProtocol=https;AccountName=droniastorage1;AccountKey=ajoSCjr7SO3Ix2jUmAXjOpOkM5wo6fwLicXRk9qYKdYryUjOnmwobl7Fmyus0titUygcsqVCWPHb+AStWXW6Bw==;EndpointSuffix=core.windows.net'
 
@@ -279,8 +279,7 @@ def predict_images(images):
     container_client = blob_service_client.get_container_client('imagenes-sin-procesar')
     blobs = container_client.list_blobs()
 
-    for blob in blobs:
-        print(blob.name)
+
 
     # Predecir cada imagen
     results = []
