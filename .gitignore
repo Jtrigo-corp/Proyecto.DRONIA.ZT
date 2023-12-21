@@ -8,7 +8,7 @@
 build/
 env
 /staticfiles/
-
+__pycache__
 #src
 *.sqlite*
 venv
