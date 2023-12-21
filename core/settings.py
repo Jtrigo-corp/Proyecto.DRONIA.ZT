@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AZURE_STORAGE_CONNECTION_STRING = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 
 DEFAULT_FILE_STORAGE = 'storages.backends.azure_storage.AzureStorage'
-AZURE_ACCOUNT_NAME = 'jorge.trigo03@inacapmail.cl'
+AZURE_ACCOUNT_NAME = 'esteban.zamorano@inacapmail.cl'
 AZURE_CONTAINER = 'https://droniastorage1.blob.core.windows.net/'
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 DEBUG = 'RENDER' not in os.environ
 # HOSTs List
 
-ALLOWED_HOSTS = ['https://dronia-zt.onrender.com']
+ALLOWED_HOSTS = ['dronia-zt.onrender.com']
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -103,9 +103,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgresql://postgres:1234@localhost/droniadb'
-    )
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 if 'DATABASE_URL' in os.environ:
