@@ -24,7 +24,7 @@ AZURE_CONTAINER = 'https://droniastorage1.blob.core.windows.net/'
 SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # Render Deployment Code
-DEBUG = 'RENDER' not in os.environ
+DEBUG = False
 # HOSTs List
 
 ALLOWED_HOSTS = []
@@ -144,16 +144,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-if not DEBUG:
-    # Tell Django to copy statics to the `staticfiles` directory
-    # in your application directory on Render.
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-    # Turn on WhiteNoise storage backend that takes care of compressing static files
-    # and creating unique names for each version so they can safely be cached forever.
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+ICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 DYN_DB_PKG_ROOT = os.path.dirname( inspect.getfile( django_dyn_dt ) ) # <-- NEW: Dynamic_DT
 
