@@ -26,7 +26,7 @@ if not SECRET_KEY:
 DEBUG = False
 # HOSTs List
 
-ALLOWED_HOSTS = ['Jetbarr.pythonanywhere.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Add here your deployment HOSTS

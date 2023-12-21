@@ -85,9 +85,13 @@ def show_map(request):
     # Agregar un marcador para cada vuelo
     for vuelo in vuelos:
         if vuelo.latitud is not None and vuelo.longitud is not None:  # Asegúrate de que la latitud y la longitud no sean None
+            html = f'<div style="font-size:15px">Area de Muestreo : {vuelo.sector_vuelo}</div>'
+            iframe = folium.IFrame(html=html, width=200, height=100)
+            popup = folium.Popup(iframe, max_width=200)
+
             folium.Marker(
                 location=[vuelo.latitud, vuelo.longitud],
-                popup=f'Vuelo: {vuelo.id_vuelo}',
+                popup=popup,
             ).add_to(m)
 
     # Convertir el mapa a HTML
