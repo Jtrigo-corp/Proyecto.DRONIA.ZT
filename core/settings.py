@@ -151,8 +151,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DYN_DB_PKG_ROOT = os.path.dirname( inspect.getfile( django_dyn_dt ) ) # <-- NEW: Dynamic_DT
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 
 #if not DEBUG:
