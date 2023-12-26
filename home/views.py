@@ -3,8 +3,8 @@ import imghdr
 from io import BytesIO
 from azure.storage.blob import BlobServiceClient, ContentSettings
 import requests
-from map.models import Imagenes, Vuelo
-from map.forms import DatosForm, IngresarVueloForm
+from map.models import AreaMuestreo, Imagenes, Vuelo
+from map.forms import AreaMuestreoForm, DatosForm, IngresarVueloForm
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
@@ -79,15 +79,16 @@ def show_map(request):
     # Crear un mapa de Folium
     m = folium.Map(location=[-27.370371, -70.322529], zoom_start=13.5)
 
-    # Obtener todos los vuelos
-    vuelos = Vuelo.objects.all()
+    # Obtener todas las áreas de muestreo
+    areasMuestreo = AreaMuestreo.objects.all()
 
-    # Agregar un marcador para cada vuelo
-    for vuelo in vuelos:
-        if vuelo.latitud is not None and vuelo.longitud is not None:  # Asegúrate de que la latitud y la longitud no sean None
+    # Agregar un marcador para cada área de muestreo
+    for area in areasMuestreo:
+        if area.latitud is not None and area.longitud is not None:  # Asegúrate de que la latitud y la longitud no sean None
+            popup = folium.Popup(f'Descripcion: {area.direccion}', max_width=500)  # Aumenta el ancho máximo del popup
             folium.Marker(
-                location=[vuelo.latitud, vuelo.longitud],
-                popup=f'Vuelo: {vuelo.id_vuelo}',
+                location=[area.latitud, area.longitud],
+                popup=popup,
             ).add_to(m)
 
     # Convertir el mapa a HTML
@@ -138,23 +139,29 @@ def contar_blobs(contenedor):
 cantidad_predicciones = contar_blobs("imagenes-analizadas")
 
 
+
+
 def cargar_imagen(request):
     if request.method == 'POST':
+        
         form_vuelo = IngresarVueloForm()  # Define form_vuelo aquí
         formulario = DatosForm()  # Define formulario aquí
         if request.method == 'POST':
+            form_area = AreaMuestreoForm(request.POST)
             form_vuelo = IngresarVueloForm(request.POST)
             formulario = DatosForm(request.POST, request.FILES)  # Asigna un valor a formulario
             if form_vuelo.is_valid():
                 form_vuelo.save()
+                return redirect('cargar_imagen')
+
+            if form_area.is_valid():
+                form_area.save()
+                return redirect('cargar_imagen')
 
             print(request.FILES)  # Imprime los archivos subidos
             if formulario.is_valid():
                 with transaction.atomic():
                     # Guardar el formulario en la base de datos
-                    formulario.save()
-
-                    # Obtener el vuelo asociado al formulario
                     vuelo = formulario.cleaned_data['vuelo']
 
                 load_dotenv('.env')
@@ -189,8 +196,7 @@ def cargar_imagen(request):
                             print("Subiendo imagen...")
                             blob_client.upload_blob(
                                 image, content_settings=ContentSettings(content_type=content_type))
-                            Imagenes.objects.create(
-                                vuelo=vuelo, nombre_imagen=image.name, analizada=True)
+                            Imagenes.objects.create(vuelo=vuelo, nombre_imagen=image.name, analizada=False)
                 except Exception as e:
                     print(f"Error al cargar imágenes: {e}")
                     messages.error(
@@ -204,11 +210,12 @@ def cargar_imagen(request):
             # Verificar si el formulario es válido
             print("El formulario no es válido.")
     else:
+        form_area = AreaMuestreoForm()
         form_vuelo = IngresarVueloForm()
         formulario = DatosForm(vuelos=Vuelo.objects.all())
 
     informaciones = Vuelo.objects.all()
-    return render(request, 'cargar_imagen.html', {'form_vuelo': form_vuelo, 'formulario': formulario, 'informaciones': informaciones})
+    return render(request, 'cargar_imagen.html', {'form_vuelo': form_vuelo, 'formulario': formulario, 'informaciones': informaciones, 'form_area': form_area})
 
 import json
 from django.core.serializers import serialize
@@ -224,27 +231,22 @@ def resultados(request):
     vuelos = Vuelo.objects.all()
     vuelos_info = []
     for vuelo in vuelos:
-        imagenes = Imagenes.objects.filter(vuelo=vuelo, analizada=True)
-        results = predict_images(imagenes)
+        # Obtén solo las imágenes que han sido analizadas y tienen un resultado
+        imagenes = Imagenes.objects.filter(vuelo=vuelo, analizada=True, resultado__isnull=False)
+        imagenes_sin_analizar = Imagenes.objects.filter(vuelo=vuelo, analizada=False)
+        imagenes_nuevas = Imagenes.objects.filter(vuelo=vuelo, analizada=False).count()  # Contador de imágenes nuevas
+
         vuelos_info.append({
             'vuelo': vuelo.id_vuelo,
             'cantidad_imagenes': imagenes.count(),
-            'fecha': vuelo.fecha_vuelo,  # Solo la fecha, sin la hora
-            'resultados': results,  # Los resultados de la predicción
+            'cantidad_imagenes_nuevas': imagenes_nuevas,  # Agregar la cantidad de imágenes nuevas al contexto
+            'fecha': vuelo.fecha_vuelo,
+            'resultados': [(imagen.nombre_imagen, imagen.resultado, imagen.porcentaje_prediccion) for imagen in imagenes],
         })
 
     # Renderizar la plantilla con la información de los vuelos
     return render(request, 'resultados.html', {'vuelos_info': vuelos_info})
 
-def detalle_vuelo(request, id_vuelo):
-    vuelo = Vuelo.objects.get(id=id_vuelo)
-    data = {
-        'fecha_carga': vuelo.fecha_carga,
-        'operador': vuelo.operador.username,
-        'cantidad_imagenes': vuelo.cantidad_imagenes,
-        'cantidad_predicciones': vuelo.cantidad_predicciones,
-    }
-    return JsonResponse(data)
 
 
 def predecir_imagenes(request, id_vuelo):
@@ -252,13 +254,14 @@ def predecir_imagenes(request, id_vuelo):
     images = Imagenes.objects.filter(vuelo_id=id_vuelo)
 
     # Predecir las imágenes usando Custom Vision
-    results = predict_images(images)
+    results = predict_images(images, id_vuelo)
+
 
     # Devolver los resultados como una respuesta JSON
     return JsonResponse({'results': results})
 
 
-def predict_images(images):
+def predict_images(images, id_vuelo):
     # Configuración para Custom Vision
     ENDPOINT = "https://eastus.api.cognitive.microsoft.com/"
     prediction_key = "d34506be224747ad9e403b138e1977d1"
@@ -282,24 +285,57 @@ def predict_images(images):
     for blob in blobs:
         print(blob.name)
 
+    # Obtener el vuelo y las imágenes nuevas
+    vuelo = Vuelo.objects.get(id_vuelo=id_vuelo)
+    images = Imagenes.objects.filter(vuelo=vuelo, analizada=False)  
+
+    # Crear clientes de contenedor para 'imagenes-analizadas' e 'imagenes-sin-procesar'
+    sin_procesar_container_client = blob_service_client.get_container_client('imagenes-sin-procesar')
+    analizadas_container_client = blob_service_client.get_container_client('imagenes-analizadas')
+
+
     # Predecir cada imagen
     results = []
-    print("Iniciando la predicción de las imágenes...")  # Nueva declaración de impresión
+    print("Iniciando la predicción de las imágenes...")
     for image in images:
-        blob_client = blob_service_client.get_blob_client(
-            container="imagenes-sin-procesar", blob=image.nombre_imagen)
+        blob_client = None
+        if image.nombre_imagen:
+            blob_client = sin_procesar_container_client.get_blob_client(image.nombre_imagen)
 
-        if blob_client.exists():
-            stream = blob_client.download_blob().readall()
-            result = predictor.classify_image(project_id, publish_iteration_name, stream)
-            # Obtén el tag con el mayor porcentaje
-            top_prediction = max(result.predictions, key=lambda prediction: prediction.probability)
-            # Convierte el porcentaje a un formato de porcentaje
-            percentage = round(top_prediction.probability * 100, 1)
-            # Almacena el nombre del tag y el porcentaje
-            results.append((image.nombre_imagen, top_prediction.tag_name, f"{percentage}%"))
+
+        if blob_client and blob_client.exists():
+            imagen = Imagenes.objects.get(nombre_imagen=image.nombre_imagen)
+            if imagen.resultado is None:
+                streamdownloader = blob_client.download_blob().readall()
+
+                # Realizar la predicción
+                prediction = predictor.classify_image(project_id, publish_iteration_name, streamdownloader)
+                top_prediction = max(prediction.predictions, key=lambda prediction: prediction.probability)
+                percentage = round(top_prediction.probability * 100, 1)
+                # Almacena el nombre del tag y el porcentaje
+                results.append((blob.name, top_prediction.tag_name, f"{percentage}%"))
+
+                # Actualizar la imagen con el resultado de la predicción
+                imagen.resultado = top_prediction.tag_name
+                imagen.porcentaje_prediccion = percentage
+                imagen.analizada = True
+                imagen.save()
+
+                # Mover la imagen al contenedor 'imagenes-analizadas'
+                analizadas_blob_client = analizadas_container_client.get_blob_client(imagen.nombre_imagen)
+                analizadas_blob_client.upload_blob(streamdownloader, overwrite=True)
+                blob_client.delete_blob()
+
+                # Agregar el resultado a la lista de resultados
+                results.append({
+                    'nombre_imagen': imagen.nombre_imagen,
+                    'resultado': imagen.resultado,
+                    'porcentaje_prediccion': imagen.porcentaje_prediccion
+                })
+            
         else:
-            print(f"La imagen con ID {image.id_imagen} no existe en el blob storage.")
+            print(f"La imagen con nombre {image.nombre_imagen} ya existe en el blob storage.")
+            
     return results
 
 

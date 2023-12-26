@@ -12,7 +12,8 @@
     {% if results.error %}
     <p>Error: {{ results.error }}</p>
     {% else %}
-    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+    <input type="hidden" id="id_vuelo" value="{{ id_vuelo }}">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
         <div class="table-responsive">
             {% if vuelos_info %}
             <div class="container">
@@ -21,9 +22,9 @@
                         <thead>
                             <tr>
                                 <th>Vuelo</th>
-                                <th>Cantidad de Imágenes</th>
-                                <th>Fecha</th>
-
+                                <th>Imagenes Analizadas</th>
+                                <th>Imagenes Cargadas</th>
+                                <th>Fecha del Vuelo</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -32,10 +33,12 @@
                                 <tr>
                                 <td>{{ vuelo_info.vuelo }}</td>
                                 <td>{{ vuelo_info.cantidad_imagenes }}</td>
+                                <td>{{ vuelo_info.cantidad_imagenes_nuevas }}</td>
                                 <td>{{ vuelo_info.fecha }}</td>
                                 <td>
                                     <!-- Botón para abrir el modal -->
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal{{ vuelo_info.vuelo }}">Ver detalles</button>
+                                    <button type="button" class="btn btn-success predecir-btn" data-id-vuelo="{{ vuelo_info.vuelo }}">Predecir</button>
                                 </td>
                                 </tr>
                                 {% endfor %}
@@ -62,25 +65,25 @@
                                                     </div>
                              
                                                 
-                                                <h3>Resultados de la predicción:</h3>
-                                                <table class="table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Nombre de la imagen</th>
-                                                            <th>Nombre de la especie del árbol</th>
-                                                            <th>Porcentaje de aceptación</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for resultado in vuelo_info.resultados %}
+                                                    <h3>Resultados de la predicción:</h3>
+                                                    <table class="table">
+                                                        <thead>
                                                             <tr>
-                                                                <td>{{ resultado.0|slice:":25" }}</td>
-                                                                <td>{{ resultado.1 }}</td>
-                                                                <td>{{ resultado.2 }}</td>
+                                                                <th>Nombre de la imagen</th>
+                                                                <th>Especie Encontrada</th>
+                                                                <th>Porcentaje de predicción</th>
                                                             </tr>
-                                                        {% endfor %}
-                                                    </tbody>
-                                                </table>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for resultado in vuelo_info.resultados %}
+                                                                <tr>
+                                                                    <td>{{ resultado.0|slice:":25" }}</td>
+                                                                    <td>{{ resultado.1 }}</td>
+                                                                    <td>{{ resultado.2 }}%</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
                                             </div>
                                         </div>
                                     </div>
@@ -122,5 +125,24 @@
 
         $('#validationResultsTable').DataTable();
         });
+
+    
+    $(document).ready(function() {
+        $('.predecir-btn').click(function() {
+            var id_vuelo = $(this).data('id-vuelo');
+
+            $.ajax({
+                url: '/resultados/predecir_imagenes/' + id_vuelo + '/',
+                type: 'get',
+                success: function(response) {
+                    // Manejar la respuesta
+                    location.reload(); 
+                },
+                error: function(error) {
+                    console.error(error);
+                }
+            });
+        });
+    });
     </script>
 {% endblock %}

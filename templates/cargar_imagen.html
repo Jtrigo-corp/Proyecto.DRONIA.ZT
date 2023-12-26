@@ -8,50 +8,144 @@
 {% block content %}
   <h3>Formulario De Registro de Vuelos y Subida de Imagenes</h3>
   <hr class="my-4 bg-light" style="height: 3px;" />
-  <div class="container-flex">
-    <div class="col-md-12 col-lg-12 col-xl-12">
-      <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}">
-        {% csrf_token %}
-        <!-- Agrega aquí los campos necesarios para el vuelo -->
-        <div class="col-2">
-          <label for="sector_vuelo">Sector del Vuelo:</label>
-          <input type="text" name="sector_vuelo" id="sector_vuelo" class="form-control" required />
+  <div class="d-flex justify-content-center">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalArea">Registrar Area de Muestreo</button>
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalVuelo">Registrar Vuelos</button>
+
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalImagenes">Ingresar Imagenes a los Vuelos</button>
+
+    <!-- Modal para el primer formulario -->
+    <div class="modal fade" id="ModalArea" tabindex="-1" role="dialog" aria-labelledby="ModalAreaLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ModalAreaLabel">Formulario Registro Area de Muestreo</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-12 col-lg-12 col-xl-12">
+              <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" onsubmit="updateMarker()">
+                {% csrf_token %}
+                <!-- Agrega aquí los campos necesarios para el vuelo -->
+                <div class="container-flex">
+                  <div class="col-sm-12 col-md-12">
+                    <label for="direccion">Descripcion:</label>
+                    <input type="text" placeholder="Ingrese aqui la dirección del muestreo" name="direccion" id="direccion" class="form-control" required />
+                  </div>
+                  <br>
+                  <div class="col-sm-12 col-md-12">
+                    <label for="latitud">Latitud:</label>
+                    <input type="text" placeholder="Ingrese aqui la latitud del area de muestreo" name="latitud" id="latitud" class="form-control" required />
+                  </div>
+                  <br>
+                  <div class="col-sm-12 col-md-12">
+                    <label for="longitud">Longitud:</label>
+                    <input type="text" placeholder="Ingrese aqui la longitud del area de muestreo" name="longitud" id="longitud" class="form-control" required />
+                  </div>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+
+                  <div class="col-sm-12 col-md-12">
+                    <div class="d-flex justify-content-center">
+                      <button type="submit" class="btn btn-primary">Guardar Area de Muestreo</button>
+                    </div>
+                  </div>
+                </div>
+                <script>
+                  function updateMarker() {
+                    var lat = document.getElementById('latitud').value;
+                    var lon = document.getElementById('longitud').value;
+                    var dir = document.getElementById('direccion').value;
+                    marker.setLatLng([lat, lon]);
+                    marker.bindPopup(dir).openPopup();
+                    mymap.setView([lat, lon], 13);
+                    return false;  // Evita que el formulario se envíe realmente
+                  }
+                </script>
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="col-2">
-          <label for="fecha_vuelo">Fecha de Vuelo:</label>
-          <input type="date" name="fecha_vuelo" id="fecha_vuelo" class="form-control" required />
-        </div>
-        <div class="col-2">
-          <label for="latitud">Latitud</label>
-          <input type="text" class="form-control" id="latitud" name="latitud" />
-        </div>
-        <div class="col-2">
-          <label for="longitud">Longitud</label>
-          <input type="text" class="form-control" id="longitud" name="longitud" />
-        </div>
-        <div class="col-4 pt-4">
-          <button type="submit" class="btn btn-primary">Guardar Vuelo</button>
-        </div>
-      </form>
+      </div>
     </div>
-    <br />
-    <div class="col-md-12 col-lg-12 col-xl-12">
-      <!-- Formulario para cargar imágenes asociadas a un vuelo -->
-      <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="col-4">
-          <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
+
+    <!-- Modal para el primer formulario -->
+    <div class="modal fade" id="ModalVuelo" tabindex="-1" role="dialog" aria-labelledby="ModalVueloLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ModalVueloLabel">Formulario Registro de Vuelos</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-12 col-lg-12 col-xl-12">
+              <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}">
+                {% csrf_token %}
+                <!-- Agrega aquí los campos necesarios para el vuelo -->
+                <div class="container-flex">
+                  <div class="col-sm-12 col-md-12">
+                    <label for="sector_vuelo">Sector del Vuelo:</label>
+                    <input type="text" placeholder="Ingrese aqui el sector del vuelo" name="sector_vuelo" id="sector_vuelo" class="form-control" required />
+                  </div>
+                  <br>
+                  <div class="col-sm-12 col-md-12">
+                    <label for="fecha_vuelo">Fecha de Vuelo:</label>
+                    <input type="date" name="fecha_vuelo" id="fecha_vuelo" class="form-control" required />
+                  </div>
+                  <br>
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+
+                  <div class="col-sm-12 col-md-12">
+                    <div class="d-flex justify-content-center">
+                      <button type="submit" class="btn btn-primary">Registrar Vuelo</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="col-2">
-          <label for="image" class="form-control-plaintext">Selecc. Imágenes:</label>
+      </div>
+    </div>
+    <!-- Modal para el segundo formulario -->
+    <div class="modal fade" id="ModalImagenes" tabindex="-1" role="dialog" aria-labelledby="ModalImagenesLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="ModalImagenesLabel">Formulario Carga de Imagenes</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <!-- Aquí va el segundo formulario -->
+            <div class="col-md-12 col-lg-12 col-xl-12">
+              <!-- Formulario para cargar imágenes asociadas a un vuelo -->
+              <form method="post" class="row g-3" action="{% url 'cargar_imagen' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="container-flex">
+                  <div class="col-sm-12 col-md-12">
+                    <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
+                  </div>
+                  <br>
+                  <div class="col-sm-6 col-md-12">
+                    <label for="image" class="form-control-plaintext">Selecc. Imágenes: (Maximo 6MB , Formato preferido JPEG)</label>
+                  </div>
+                  <div class="col-sm-6 col-md-12">
+                    <input type="file" name="image" id="image" class="form-control" accept=".jpeg, .jpg, .png, .gif, .bmp, .tiff" multiple required />
+                  </div>
+                  
+                  <hr class="my-4 bg-light" style="height: 3px;" />
+
+                  <div class="col-sm-12 col-md-12">
+                    <div class="d-flex justify-content-center">
+                      <button type="submit" class="btn btn-primary">Ingresar Imagenes</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="col-3">
-          <input type="file" class="form-control" id="image" name="image" multiple required />
-        </div>
-        <div class="col-2">
-          <button type="submit" class="btn btn-primary">Guardar Imágenes</button>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -64,10 +158,8 @@
         <thead>
           <tr>
             <th>N° del Vuelo</th>
-            <th>Sector Vuelo</th>
-            <th>Fecha Vuelo</th>
-            <th>Latitud</th>
-            <th>Longitud</th>
+            <th>Sector Sobrevolado</th>
+            <th>Fecha del Vuelo</th>
             <th>Opciones</th>
           </tr>
         </thead>
@@ -77,10 +169,8 @@
               <td>{{ informacion.id_vuelo }}</td>
               <td>{{ informacion.sector_vuelo }}</td>
               <td>{{ informacion.fecha_vuelo }}</td>
-              <td>{{ informacion.latitud }}</td>
-              <td>{{ informacion.longitud }}</td>
               <td>
-                <button type="button" class="btn btn-success" onclick="location.href='{% url 'resultados' %}'">Detalle</button>
+                <button type="button" class="btn btn-success" onclick="location.href='{% url 'resultados' %}'">Ir A Analizar Datos</button>
               </td>
             </tr>
           {% endfor %}

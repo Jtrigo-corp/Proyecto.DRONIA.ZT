@@ -1,6 +1,10 @@
 from django import forms
-from .models import Vuelo, Imagenes  # Importa Vuelo aquí
+from .models import AreaMuestreo, Vuelo, Imagenes  # Importa Vuelo aquí
 
+class AreaMuestreoForm(forms.ModelForm):
+    class Meta:
+        model = AreaMuestreo
+        fields = ['direccion', 'latitud', 'longitud']   
 class DatosForm(forms.ModelForm):
     class Meta:
         model = Imagenes
@@ -15,4 +19,6 @@ class DatosForm(forms.ModelForm):
 class IngresarVueloForm(forms.ModelForm):
     class Meta:
         model = Vuelo
-        fields = ['sector_vuelo', 'fecha_vuelo', 'latitud', 'longitud']
+        fields = ['sector_vuelo', 'fecha_vuelo']
+        
+     

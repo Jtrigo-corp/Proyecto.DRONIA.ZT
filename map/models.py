@@ -23,6 +23,7 @@ class Vuelo(models.Model):
     update_at = models.DateTimeField(auto_now_add=True)
     operador = models.ForeignKey(Operador, on_delete=models.CASCADE,blank=True, null=True)
     cantidad_imagenes = models.IntegerField(default=0)
+    cantidad_imagenes_nuevas = models.IntegerField(default=0)
     cantidad_predicciones = models.IntegerField(default=0)
     class Meta:
         db_table = 'map_vuelo'  # Especifica el nombre de la tabla en la base de datos
@@ -34,6 +35,7 @@ class Imagenes(models.Model):
     id_imagen = models.AutoField(primary_key=True)
     vuelo = models.ForeignKey('Vuelo', on_delete=models.CASCADE)
     nombre_imagen = models.CharField(max_length=255, blank=True, null=True)
+    porcentaje_prediccion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     resultado = models.TextField(null=True, blank=True)
     image_file = models.ImageField(upload_to='imagenes/', null=True, blank=True)
     analizada = models.BooleanField(default=False)
@@ -53,3 +55,16 @@ class Ubicaciones(models.Model):
 
     def __str__(self):
         return f'Ubicacion {self.id_ubicaciones}'
+
+class AreaMuestreo(models.Model):
+    direccion = models.CharField(max_length=200)
+    latitud = models.DecimalField(max_digits=12, decimal_places=6)
+    longitud = models.DecimalField(max_digits=12, decimal_places=6)
+    detecciones = models.IntegerField(default=0)  # Añade un campo para rastrear la cantidad de detecciones
+    especieArbol = models.CharField(max_length=200, null=True)  # Añade un campo para la especie del árbol
+
+    class Meta:
+        db_table = 'map_areaMuestreo'
+
+    def __str__(self):
+        return f'Ubicacion {self.id_areaMuestreo}'
