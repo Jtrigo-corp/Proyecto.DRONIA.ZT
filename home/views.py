@@ -87,7 +87,7 @@ def show_map(request):
 
     # Agregar un marcador para cada área de muestreo
     for area in areasMuestreo:
-        if area.latitud is not None and area.longitud is not None:  # Asegúrate de que la latitud y la longitud no sean None
+        if area.latitud is not None and area.longitud is not None: 
             popup = folium.Popup(f'Descripcion: {area.direccion}', max_width=500)  # Aumenta el ancho máximo del popup
             folium.Marker(
                 location=[area.latitud, area.longitud],

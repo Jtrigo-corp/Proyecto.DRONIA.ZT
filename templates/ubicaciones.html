@@ -6,81 +6,79 @@
 {% endblock %}
 
 {% block content %}
-<div class="container daily-sales col-md-12">
+  <div class="container daily-sales col-md-12">
     <div class="row col-md-12">
-        <p class="b-title"><h3>Ubicaciones</h3></p>
-        {% for vuelo in vuelos %}
-            {{ vuelo.latitud }}, {{ vuelo.longitud }}
-            
-        {% endfor %}
+      <p class="b-title">
+        <h3>Ubicaciones</h3>
+      </p>
+      {% for vuelo in vuelos %}
+        {{ vuelo.latitud }}, {{ vuelo.longitud }}
+      {% endfor %}
     </div>
-        <div class="row col-md-12">
-            <div class="col-md-8">
-                
-                <div id="my_map" style="height: 180px;">
-                    {{my_map|safe}}
-                    {% for vuelo in vuelos %}
-                        {{ vuelo.latitud }}, {{ vuelo.longitud }}
-                    {% endfor %}
-                </div>
-            </div>
-            
-
-            <div class="row col-md-4">
-                <div class="col-md-12">
-                    <div class="card daily-sales">
-                        <div class="card-block">
-                        <h6 class="mb-4">Especies frutales encontradas</h6>
-                        <div class="row d-flex align-items-center">
-                            <div class="col-9">
-                            <h3 class="f-w-300 d-flex align-items-center m-b-0"><i
-                                class="feather icon-activity text-c-green f-30 m-r-10"></i>
-                                18</h3>
-                            </div>
-                        </div>
-                        <div class="progress m-t-30" style="height: 7px;">
-                            <div class="progress-bar progress-c-theme" role="progressbar" style="width: 100%;"
-                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-12">
-                    <div class="card daily-sales">
-                        <div class="card-block">
-                        <h6 class="mb-4">Ornamentales</h6>
-                        <div class="row d-flex align-items-center">
-                            <div class="col-9">
-                            <h3 class="f-w-300 d-flex align-items-center m-b-0"><i
-                                class="feather icon-flag text-c-green f-30 m-r-10"></i>
-                                47</h3>
-                            </div>
-                        </div>
-                        <div class="progress m-t-30" style="height: 7px;">
-                            <div class="progress-bar progress-c-theme" role="progressbar" style="width: 100%;"
-                            aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="row col-md-12">
+      <div class="col-md-8">
+        <div id="my_map" style="height: 200px;">
+          {{ my_map|safe }}
+          {% for vuelo in vuelos %}
+            {{ vuelo.latitud }}, {{ vuelo.longitud }}
+          {% endfor %}
         </div>
-</div>
-<script type="text/javascript">
-    var vuelos = JSON.parse('{{ vuelos|safe }}');
-    var areasMuestreo = JSON.parse('{{ areasMuestreo|safe }}');  // Asegúrate de pasar las áreas de muestreo a tu plantilla
-    var map = L.map('my_map').setView([vuelos[0].latitud, vuelos[0].longitud], 13);  // Inicializa el mapa centrado en el primer vuelo
+      </div>
+      <div class="col-md-4">
+        <h4>Mostrar popups</h4>
+        <form id="popup-form">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="area-1" value="1" checked />
+            <label class="form-check-label" for="area-1">Area de muestreo 1</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="area-2" value="2" checked />
+            <label class="form-check-label" for="area-2">Area de muestreo 2</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="area-2" value="2" checked />
+            <label class="form-check-label" for="area-2">Area de muestreo 3</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="area-2" value="2" checked />
+            <label class="form-check-label" for="area-2">Area de muestreo 4</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="area-2" value="2" checked />
+            <label class="form-check-label" for="area-2">Area de muestreo 5</label>
+          </div>
+          <!-- Repite los divs para más checkbox -->
+        </form>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    var vuelos = {{ vuelos|safe }};
+    var areasMuestreo = {{ areasMuestreo|safe }};
+    var map = L.map('my_map').setView([vuelos[0].latitud, vuelos[0].longitud], 13);
+    var markers = {};
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {  // Usa OpenStreetMap como capa base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
     }).addTo(map);
 
     for (let area of areasMuestreo) {
         let lat = area.latitud;
         let lon = area.longitud;
-        let marker = L.marker([lat, lon]).addTo(map);  // Asegúrate de agregar el marcador al mapa correcto
+        let marker = L.marker([lat, lon]).addTo(map);
         marker.bindPopup(area.direccion);
+        markers[area.id] = marker;
     }
+
+    $('#popup-form input[type=checkbox]').change(function() {
+        var marker = markers[$(this).val()];
+        if (this.checked) {
+            marker.on('click', function() {
+                this.openPopup();
+            });
+        } else {
+            marker.off('click');
+        }
+    });
 </script>
 {% endblock %}

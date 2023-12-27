@@ -57,6 +57,7 @@ class Ubicaciones(models.Model):
         return f'Ubicacion {self.id_ubicaciones}'
 
 class AreaMuestreo(models.Model):
+    id = models.AutoField(primary_key=True)
     direccion = models.CharField(max_length=200)
     latitud = models.DecimalField(max_digits=12, decimal_places=6)
     longitud = models.DecimalField(max_digits=12, decimal_places=6)
@@ -67,4 +68,4 @@ class AreaMuestreo(models.Model):
         db_table = 'map_areaMuestreo'
 
     def __str__(self):
-        return f'Ubicacion {self.id_areaMuestreo}'
+        return f'Ubicacion {self.id}'
