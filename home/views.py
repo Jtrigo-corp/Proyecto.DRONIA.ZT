@@ -4,6 +4,7 @@ from io import BytesIO
 from urllib import request
 from azure.storage.blob import BlobServiceClient, ContentSettings
 import requests
+from datetime import datetime, timedelta
 from map.models import AreaMuestreo, Imagenes, Vuelo
 from map.forms import AreaMuestreoForm, DatosForm, IngresarVueloForm
 from django.shortcuts import get_object_or_404, render
@@ -46,7 +47,8 @@ from map.forms import IngresarVueloForm, DatosForm
 from map.models import Vuelo, Imagenes
 from django.contrib import messages
 import mimetypes
-import os
+from azure.core.exceptions import AzureError
+from azure.cognitiveservices.vision.customvision.prediction.models import CustomVisionErrorException
 from azure.storage.blob import BlobServiceClient
 from django.http import JsonResponse
 # Asegúrate de tener esta línea al inicio de tu archivo
@@ -198,7 +200,8 @@ def cargar_imagen(request):
                             blob_client.upload_blob(
                                 image, content_settings=ContentSettings(content_type=content_type))
                             Imagenes.objects.create(vuelo=vuelo, nombre_imagen=image.name, analizada=False)
-                            messages.success(request, '¡Las imagenes se subieron satisfactoriamente!')
+                            
+                    messages.success(request, '¡Las imagenes se subieron satisfactoriamente!')
                 except Exception as e:
                     print(f"Error al cargar imágenes: {e}")
                     messages.error(
@@ -256,8 +259,9 @@ def predecir_imagenes(request, id_vuelo):
     images = Imagenes.objects.filter(vuelo_id=id_vuelo)
 
     # Predecir las imágenes usando Custom Vision
-    results = predict_images(images, id_vuelo)
-
+    results, errors = predict_images(images, id_vuelo)
+    for error in errors:
+        messages.error(request, error)
 
     # Devolver los resultados como una respuesta JSON
     return JsonResponse({'results': results})
@@ -297,6 +301,7 @@ def predict_images(images, id_vuelo):
 
 
     # Predecir cada imagen
+    errors = []
     results = []
     print("Iniciando la predicción de las imágenes...")
     for image in images:
@@ -306,41 +311,53 @@ def predict_images(images, id_vuelo):
 
 
         if blob_client and blob_client.exists():
-            imagen = Imagenes.objects.get(nombre_imagen=image.nombre_imagen)
-            if imagen.resultado is None:
-                streamdownloader = blob_client.download_blob().readall()
+            imagenes = Imagenes.objects.filter(nombre_imagen=image.nombre_imagen)
+            for imagen in imagenes:
+                if imagen.resultado is None:
+                    streamdownloader = blob_client.download_blob().readall()
+                    # Comprobar el tamaño de la imagen
+                    if len(streamdownloader) > 4 * 1024 * 1024:  # 4 MB
+                        errors.append(f"Error: La imagen {image.nombre_imagen} es demasiado grande para ser clasificada por Custom Vision.")
+                    else:
+                        # Realizar la predicción
+                        try:
+                            prediction = predictor.classify_image(project_id, publish_iteration_name, streamdownloader)
+                            top_prediction = max(prediction.predictions, key=lambda prediction: prediction.probability)
+                            percentage = round(top_prediction.probability * 100, 1)
+                            # Almacena el nombre del tag y el porcentaje
+                            results.append((blob.name, top_prediction.tag_name, f"{percentage}%"))
 
-                # Realizar la predicción
-                prediction = predictor.classify_image(project_id, publish_iteration_name, streamdownloader)
-                top_prediction = max(prediction.predictions, key=lambda prediction: prediction.probability)
-                percentage = round(top_prediction.probability * 100, 1)
-                # Almacena el nombre del tag y el porcentaje
-                results.append((blob.name, top_prediction.tag_name, f"{percentage}%"))
+                            # Actualizar la imagen con el resultado de la predicción
+                            imagen.resultado = top_prediction.tag_name
+                            imagen.porcentaje_prediccion = percentage
+                            imagen.analizada = True
+                            imagen.save()
 
-                # Actualizar la imagen con el resultado de la predicción
-                imagen.resultado = top_prediction.tag_name
-                imagen.porcentaje_prediccion = percentage
-                imagen.analizada = True
-                imagen.save()
-
-                # Mover la imagen al contenedor 'imagenes-analizadas'
-                analizadas_blob_client = analizadas_container_client.get_blob_client(imagen.nombre_imagen)
-                analizadas_blob_client.upload_blob(streamdownloader, overwrite=True)
-                blob_client.delete_blob()
-
-                # Agregar el resultado a la lista de resultados
-                results.append({
-                    'nombre_imagen': imagen.nombre_imagen,
-                    'resultado': imagen.resultado,
-                    'porcentaje_prediccion': imagen.porcentaje_prediccion
-                })
-                
-                messages.success(request, 'Las imágenes se analizaron satisfactoriamente por la inteligencia artificial.')
+                            try:
+                                # Mover la imagen al contenedor 'imagenes-analizadas'
+                                analizadas_blob_client = analizadas_container_client.get_blob_client(imagen.nombre_imagen)
+                                analizadas_blob_client.upload_blob(streamdownloader, overwrite=True)
+                                blob_client.delete_blob()
+                            except CustomVisionErrorException as e:
+                                if 'format' in str(e):  # Comprobar si el error se debe al formato de la imagen
+                                    errors.append(f"Error: El formato de la imagen {image.nombre_imagen} es incorrecto.")
+                                else:
+                                    errors.append(f"Error: La imagen {image.nombre_imagen} está corrupta o no cumple con los requisitos de predicción de Custom Vision.")
+                                continue
+                            results.append({
+                                'nombre_imagen': imagen.nombre_imagen,
+                                'resultado': imagen.resultado,
+                                'porcentaje_prediccion': imagen.porcentaje_prediccion
+                            })
+                        except CustomVisionErrorException as e:
+                            messages.error(request, f"Error: La imagen {image.nombre_imagen} está corrupta o no cumple con los requisitos de predicción de Custom Vision.")    
+                        #messages.success(request, 'Las imágenes se analizaron satisfactoriamente por la inteligencia artificial.')
             
         else:
             print(f"La imagen con nombre {image.nombre_imagen} ya existe en el blob storage.")
             
-    return results
+    return results, errors
+
 
 
 def validar_imagenes(request, id_vuelo):
