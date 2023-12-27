@@ -8,6 +8,14 @@
 {% block content %}
   <h3>Formulario De Registro de Vuelos y Subida de Imagenes</h3>
   <hr class="my-4 bg-light" style="height: 3px;" />
+  {% if messages %}
+    {% for message in messages %}
+      <div class="d-flex justify-content-center alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+    {% endfor %}
+  {% endif %}
   <div class="d-flex justify-content-center">
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#ModalArea">Registrar Area de Muestreo</button>
 
@@ -31,14 +39,14 @@
                 <div class="container-flex">
                   <div class="col-sm-12 col-md-12">
                     <label for="direccion">Descripcion:</label>
-                    <input type="text" placeholder="Ingrese aqui la dirección del muestreo" name="direccion" id="direccion" class="form-control" required />
+                    <input type="text" placeholder="Ingrese aqui la descripcion del muestreo" name="direccion" id="direccion" class="form-control" required />
                   </div>
-                  <br>
+                  <br />
                   <div class="col-sm-12 col-md-12">
                     <label for="latitud">Latitud:</label>
                     <input type="text" placeholder="Ingrese aqui la latitud del area de muestreo" name="latitud" id="latitud" class="form-control" required />
                   </div>
-                  <br>
+                  <br />
                   <div class="col-sm-12 col-md-12">
                     <label for="longitud">Longitud:</label>
                     <input type="text" placeholder="Ingrese aqui la longitud del area de muestreo" name="longitud" id="longitud" class="form-control" required />
@@ -53,13 +61,13 @@
                 </div>
                 <script>
                   function updateMarker() {
-                    var lat = document.getElementById('latitud').value;
-                    var lon = document.getElementById('longitud').value;
-                    var dir = document.getElementById('direccion').value;
-                    marker.setLatLng([lat, lon]);
-                    marker.bindPopup(dir).openPopup();
-                    mymap.setView([lat, lon], 13);
-                    return false;  // Evita que el formulario se envíe realmente
+                    var lat = document.getElementById('latitud').value
+                    var lon = document.getElementById('longitud').value
+                    var dir = document.getElementById('direccion').value
+                    marker.setLatLng([lat, lon])
+                    marker.bindPopup(dir).openPopup()
+                    mymap.setView([lat, lon], 13)
+                    return false // Evita que el formulario se envíe realmente
                   }
                 </script>
               </form>
@@ -87,12 +95,12 @@
                     <label for="sector_vuelo">Sector del Vuelo:</label>
                     <input type="text" placeholder="Ingrese aqui el sector del vuelo" name="sector_vuelo" id="sector_vuelo" class="form-control" required />
                   </div>
-                  <br>
+                  <br />
                   <div class="col-sm-12 col-md-12">
                     <label for="fecha_vuelo">Fecha de Vuelo:</label>
                     <input type="date" name="fecha_vuelo" id="fecha_vuelo" class="form-control" required />
                   </div>
-                  <br>
+                  <br />
                   <hr class="my-4 bg-light" style="height: 3px;" />
 
                   <div class="col-sm-12 col-md-12">
@@ -125,14 +133,14 @@
                   <div class="col-sm-12 col-md-12">
                     <label for="vuelos" class="form-control">Seleccionar Vuelo: {{ formulario.vuelo }}</label>
                   </div>
-                  <br>
+                  <br />
                   <div class="col-sm-6 col-md-12">
                     <label for="image" class="form-control-plaintext">Selecc. Imágenes: (Maximo 6MB , Formato preferido JPEG)</label>
                   </div>
                   <div class="col-sm-6 col-md-12">
                     <input type="file" name="image" id="image" class="form-control" accept=".jpeg, .jpg, .png, .gif, .bmp, .tiff" multiple required />
                   </div>
-                  
+
                   <hr class="my-4 bg-light" style="height: 3px;" />
 
                   <div class="col-sm-12 col-md-12">

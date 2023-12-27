@@ -127,22 +127,25 @@
         });
 
     
-    $(document).ready(function() {
-        $('.predecir-btn').click(function() {
-            var id_vuelo = $(this).data('id-vuelo');
+$(document).ready(function() {
+    $('.predecir-btn').click(function() {
+        var id_vuelo = $(this).data('id-vuelo');
 
-            $.ajax({
-                url: '/resultados/predecir_imagenes/' + id_vuelo + '/',
-                type: 'get',
-                success: function(response) {
-                    // Manejar la respuesta
-                    location.reload(); 
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
+        // Mostrar una alerta
+        alert('La predicción puede tardar varios minutos. Por favor, espera.');
+
+        $.ajax({
+            url: '/resultados/predecir_imagenes/' + id_vuelo + '/',
+            type: 'get',
+            success: function(response) {
+                // Manejar la respuesta
+                location.reload(); 
+            },
+            error: function(error) {
+                console.error(error);
+            }
         });
     });
+});
     </script>
 {% endblock %}

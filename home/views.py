@@ -1,6 +1,7 @@
 from gettext import translation
 import imghdr
 from io import BytesIO
+from urllib import request
 from azure.storage.blob import BlobServiceClient, ContentSettings
 import requests
 from map.models import AreaMuestreo, Imagenes, Vuelo
@@ -197,6 +198,7 @@ def cargar_imagen(request):
                             blob_client.upload_blob(
                                 image, content_settings=ContentSettings(content_type=content_type))
                             Imagenes.objects.create(vuelo=vuelo, nombre_imagen=image.name, analizada=False)
+                            messages.success(request, '¡Las imagenes se subieron satisfactoriamente!')
                 except Exception as e:
                     print(f"Error al cargar imágenes: {e}")
                     messages.error(
@@ -332,6 +334,8 @@ def predict_images(images, id_vuelo):
                     'resultado': imagen.resultado,
                     'porcentaje_prediccion': imagen.porcentaje_prediccion
                 })
+                
+                messages.success(request, 'Las imágenes se analizaron satisfactoriamente por la inteligencia artificial.')
             
         else:
             print(f"La imagen con nombre {image.nombre_imagen} ya existe en el blob storage.")

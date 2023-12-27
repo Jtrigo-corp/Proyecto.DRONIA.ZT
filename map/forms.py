@@ -21,4 +21,3 @@ class IngresarVueloForm(forms.ModelForm):
         model = Vuelo
         fields = ['sector_vuelo', 'fecha_vuelo']
         
-     
